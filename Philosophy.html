@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATID - Philosophy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+/* ============================================
+   SATID Website - COMPLETE MASTER STYLESHEET
+   Merged from index-enhanced-8-3-2.html + styles.css
+   This is the DEFINITIVE version with ALL styling
+   ============================================ */
+
+/* ============================================
+   1. BASE STYLES & RESET
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    color: #2c3e50;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* ============================================
+   2. NAVIGATION STYLES - COMPLETE
+   ============================================ */
+
+.navbar {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-container {
+    max-width: 100% !important;
+    padding: 0 40px !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    padding: 15px 0;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    justify-content: space-between !important;
+    width: 100% !important;
+}
+
+.nav-menu li {
+    list-style: none;
+}
+
+.nav-menu a {
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 20px 0;
+    display: block;
+    transition: color 0.3s;
+    font-size: 17px;
+    font-weight: 400;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+    color: #3498db;
+}
+
+/* Dropdown Menu */
+.dropdown {
+    position: relative;
+}
+
+.dropbtn {
+    cursor: pointer;
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 20px 0;
+    display: block;
+    transition: color 0.3s;
+    font-size: 17px;
+    font-weight: 400;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #34495e;
+    min-width: 250px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+    z-index: 1000;
+    top: 100%;
+    left: 0;
+}
+
+.dropdown-content a {
+    color: #ecf0f1;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border-bottom: 1px solid #2c3e50;
+}
+
+.dropdown-content a:hover {
+    background-color: #2c3e50;
+    color: #3498db;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    color: #3498db;
+}
+
+/* ============================================
+   3. HERO SECTION
+   ============================================ */
+
+.hero {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3d6cb9 100%);
+    padding: 40px 20px 80px;
+    position: relative;
+    overflow: hidden;
+    color: white;
+    text-align: center;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" fill="rgba(255,255,255,0.03)"/></svg>') repeat;
+    opacity: 0.5;
+}
+
+.hero-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.hero h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: 400;
+    color: #ecf0f1;
+}
+
+.hero-subtitle {
+    font-size: 1.6rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   4. CONTAINER & CONTENT PAGE
+   ============================================ */
+
+.container {
+    max-width: 100% !important;
+    margin: -60px auto 60px;
+    padding: 0 10px !important;
+    position: relative;
+    z-index: 2;
+}
+
+.content-page {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+    padding: 50px 30px 70px 30px !important;
+    animation: fadeIn 1s ease-out;
+    max-width: 850px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ============================================
+   5. CONTENT SECTIONS
+   ============================================ */
+
+.content-section {
+    margin-bottom: 50px;
+}
+
+.content-section h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+    color: #1e3c72;
+    letter-spacing: -0.5px;
+}
+
+.content-section h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #2a5298, #3d6cb9);
+    margin: 15px auto 0;
+    border-radius: 2px;
+}
+
+.content-section h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1e3c72;
+    margin-top: 35px;
+    margin-bottom: 18px;
+    position: relative;
+    padding-bottom: 10px;
+    letter-spacing: -0.3px;
+}
+
+.content-section h3::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, #2a5298, #3d6cb9);
+    border-radius: 2px;
+}
+
+.content-section h3 a {
+    color: #1e3c72;
+    text-decoration: underline;
+    text-decoration-color: #1e3c72;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    transition: color 0.3s ease;
+}
+
+.content-section h3 a:hover {
+    color: #2a5298;
+    text-decoration-color: #2a5298;
+}
+
+.content-section p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #4a5568;
+    margin-bottom: 20px;
+    font-weight: 400;
+}
+
+/* ============================================
+   6. CHART CONTAINERS
+   ============================================ */
+
+.chart-container {
+    margin: 50px 0;
+    padding: 30px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+#aok-chart,
+#chart-container {
+    width: 100%;
+    min-height: 500px;
+}
+
+/* ============================================
+   7. KEY POINTS / HIGHLIGHT BOXES
+   ============================================ */
+
+.key-point {
+    background: linear-gradient(135deg, #f0f4f8 0%, #e9ecef 100%);
+    border-left: 4px solid #2a5298;
+    padding: 30px 35px;
+    margin: 30px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+}
+
+.key-point:hover {
+    transform: translateX(5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.key-point-large {
+    padding: 35px 40px;
+    font-size: 1.05rem;
+}
+
+.highlight-box {
+    background: linear-gradient(135deg, #f0f4f8 0%, #e9ecef 100%);
+    border-left: 4px solid #2a5298;
+    padding: 30px 35px;
+    margin: 30px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.highlight-box p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #4a5568;
+}
+
+/* ============================================
+   8. COMPARISON TABLES
+   ============================================ */
+
+.comparison-table-wrapper {
+    margin-top: 60px;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.comparison-table thead tr {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+}
+
+.comparison-table th {
+    padding: 25px 20px;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.comparison-table th:first-child {
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.comparison-table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.comparison-table tbody tr:nth-child(odd) {
+    background-color: #f7f9fc;
+}
+
+.comparison-table tbody tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+.comparison-table tbody tr:hover {
+    background-color: #e8f0fe;
+    transform: scale(1.01);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.comparison-table td {
+    padding: 20px 25px;
+    text-align: center;
+    font-size: 1.05rem;
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+.comparison-table td:first-child {
+    border-right: 1px solid #e2e8f0;
+}
+
+.comparison-table td u {
+    color: #2a5298;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 2px solid #2a5298;
+}
+
+/* ============================================
+   9. FOOTER
+   ============================================ */
+
+footer {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 80px;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* ============================================
+   10. RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1400px) {
+    .content-page {
+        padding: 50px 30px 60px 30px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero h2 {
+        font-size: 22px;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .content-page {
+        padding: 40px 25px !important;
+    }
+    
+    .content-section h2 {
+        font-size: 1.6rem;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+        padding: 15px;
+        font-size: 0.95rem;
+    }
+    
+    .nav-menu {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .dropdown-content {
+        position: static;
+        box-shadow: none;
+        background-color: #2c3e50;
+    }
+    
+    .dropdown:hover .dropdown-content {
+        display: none;
+    }
+    
+    .dropdown.active .dropdown-content {
+        display: block;
+    }
+}
+
+/* ============================================
+   11. UTILITY CLASSES
+   ============================================ */
+
+.text-center {
+    text-align: center;
+}
+
+.text-justify {
+    text-align: justify;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.mb-30 {
+    margin-bottom: 30px;
+}
+
+.mb-40 {
+    margin-bottom: 40px;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mt-30 {
+    margin-top: 30px;
+}
+
+.mt-40 {
+    margin-top: 40px;
+}
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="index.html">Index</a></li>
+                <li><a href="Philosophy.html" class="active">Philosophy</a></li>
+                <li><a href="Methodology.html">Methodology</a></li>
+                <li><a href="Support_Levels_Interactive.html">Risk Level Setting</a></li>
+                <li><a href="Portfolio_Risk_Exposure.html">Risk Exposure</a></li>
+                <li><a href="SATID_Risk_Score.html">Risk Score</a></li>
+                <li><a href="Portfolio_Risk_Dashboard.html">Risk Dashboard</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Market Views</a>
+                    <div class="dropdown-content">
+                        <a href="Market_Views.html">About Market Views</a>
+                        <a href="SATID_Relative_Performance.html">Cross Asset Validations</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Appendix</a>
+                    <div class="dropdown-content">
+                        <a href="Portfolios_Performance.html">Portfolio Performance Analysis</a>
+                        <a href="Conventional_Portfolio_Profiles.html">Conventional Portfolio Profiles</a>
+                        <a href="model_portfolios.html">Model Portfolios</a>
+                        <a href="Portfolio_Statistics.html">Portfolio Statistics</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Philosophy</h1>
+            <p class="hero-subtitle">Restoring discipline, trust, and control to portfolio management</p>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <div class="container">
+        <div class="content-page">
+            
+            <!-- Content Section -->
+            <section class="content-section">
+                <p>As a portfolio manager who has navigated multiple market cycles since 1997, I recognize the value of diversification in multi-asset portfolios. I have also experienced its limitations during severe market downturns, when diversification fails and portfolios breach client mandates.</p>
+
+                <p>Conventional portfolio management is largely benchmark-centric. Portfolios are constructed to closely track benchmarks and are limited in how far they can deviate. As a result, when benchmarks suffer significant drawdowns, portfolios follow—often regardless of a client's risk tolerance or capital-preservation objectives. A manager may be praised for "outperforming" a collapsing benchmark by 2%, even as a conservatively mandated portfolio suffers a 15% absolute loss. In this context, the benchmark becomes an excuse rather than a safeguard. This is where traditional investing fails the private client.</p>
+
+                <p>The solution is not to abandon benchmarks, but to correct this structural flaw. This is how the SATID methodology (Structured Approach to Investment Decisions) was conceived.</p>
+
+                <p>SATID is a disciplined framework grounded in benchmark portfolios, yet focused on what truly matters: strict adherence to the client's mandate, particularly the limitation of capital losses. Rather than passively tracking a benchmark when it diverges from client objectives, SATID actively enforces alignment at all times.</p>
+
+                <p>Portfolios retain the upside potential and diversification benefits of traditional construction, while systematically monitoring, quantifying, and communicating the maximum loss they are permitted to sustain. This delivers a high level of transparency, control, and confidence—especially during periods of heightened uncertainty.</p>
+
+                <p>SATID is not a "product" or a generic "service," but a direct response to the most common challenge faced by private clients: capital losses beyond what was expected or acceptable, compounded by uncertainty during market stress. In such conditions, emotional decision-making often leads to selling at peak discomfort and re-entering after recovery—crystallizing losses and eroding long-term wealth.</p>
+
+                <div class="highlight-box">
+                    <p>In summary, SATID enables investors to allocate capital with confidence. It clearly defines portfolio boundaries, provides continuous transparency, and ensures mandates are respected—particularly when it matters most. By systematically preventing mandate breaches, SATID restores discipline, trust, and control to portfolio management.</p>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 SATID Investment Management. All rights reserved.</p>
+    </footer>
+</body>
+</html>

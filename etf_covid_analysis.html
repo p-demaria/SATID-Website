@@ -147,10 +147,32 @@
             margin-right: 5px;
             vertical-align: middle;
         }
+        
+        /* Return to Index Button */
+        .return-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #2c5f2d 0%, #4a7c59 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(44, 95, 45, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        .return-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(44, 95, 45, 0.4);
+            background: linear-gradient(135deg, #4a7c59 0%, #5d9973 100%);
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <a href="index.html" class="return-button">← Return to Index</a>
         <h1>Market Event - Covid</h1>
         
         <div class="content-grid">

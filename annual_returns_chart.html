@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Annual Returns</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f7fa; padding: 20px; }
+        .container { max-width: 1600px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; padding: 30px; text-align: center; border-radius: 12px; margin-bottom: 20px; }
+        .header h1 { font-size: 32px; margin-bottom: 10px; }
+        .controls { background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+        .section { margin-bottom: 20px; }
+        .section h3 { color: #2a5298; font-size: 16px; margin-bottom: 12px; }
+        .buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+        button { padding: 10px 20px; border: 2px solid #ddd; background: white; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+        button:hover { border-color: #2a5298; }
+        button.active { background: #2a5298; color: white; border-color: #2a5298; }
+        
+        .view-tabs { background: white; padding: 10px 25px; border-radius: 12px 12px 0 0; margin-bottom: -10px; display: flex; gap: 10px; }
+        .tab-btn { padding: 12px 24px; border: none; background: transparent; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 15px; font-weight: 600; color: #666; transition: all 0.2s; }
+        .tab-btn:hover { background: #f0f0f0; }
+        .tab-btn.active { background: white; color: #2a5298; border: 2px solid #e0e0e0; border-bottom: 2px solid white; margin-bottom: -2px; }
+        
+        .view-content { background: white; padding: 30px; border-radius: 0 0 12px 12px; display: none; }
+        .view-content.active { display: block; }
+        
+        /* Table styles */
+        table { border-collapse: collapse; width: 100%; }
+        th { background: #2a5298; color: white; padding: 12px; text-align: left; position: sticky; top: 0; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        .positive { color: #28a745; font-weight: bold; }
+        .negative { color: #dc3545; font-weight: bold; }
+        tr.hidden { display: none; }
+        
+        /* Bar chart styles */
+        .chart-scroll { overflow-x: auto; padding: 20px 0; }
+        .chart-grid { display: inline-flex; gap: 40px; min-width: 100%; padding: 20px; }
+        .year-group { display: flex; flex-direction: column; align-items: center; }
+        .chart-area { height: 400px; display: flex; align-items: center; position: relative; }
+        .baseline { position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: #000; z-index: 1; }
+        .bars { display: flex; gap: 3px; position: relative; }
+        .bar { width: 28px; height: 200px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .bar.hidden { display: none; }
+        .bar-rect { width: 100%; position: absolute; display: flex; align-items: flex-end; justify-content: center; }
+        .bar-rect.positive { bottom: 50%; background: var(--bar-color); }
+        .bar-rect.negative { top: 50%; background: var(--bar-color); align-items: flex-start; }
+        .bar-label { font-size: 10px; font-weight: bold; white-space: nowrap; color: #000; position: absolute; left: 50%; transform: translateX(-50%); }
+        .bar-label.positive { bottom: 100%; margin-bottom: 4px; }
+        .bar-label.negative { top: 100%; margin-top: 4px; }
+        .year-label { margin-top: 10px; font-weight: bold; font-size: 13px; }
+        
+        /* Legend styles */
+        .legend { margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+        .legend-title { font-weight: bold; font-size: 16px; margin-bottom: 15px; color: #2a5298; }
+        .legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+        .legend-item { display: flex; align-items: center; gap: 10px; }
+        .legend-color { width: 30px; height: 20px; border-radius: 4px; border: 1px solid #ddd; }
+        .legend-label { font-size: 14px; }
+        
+        /* Return to Previous Page Button */
+        .return-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #2c5f2d 0%, #4a7c59 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(44, 95, 45, 0.3);
+            margin-bottom: 20px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .return-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(44, 95, 45, 0.4);
+            background: linear-gradient(135deg, #4a7c59 0%, #5d9973 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button onclick="history.back()" class="return-button">← Back</button>
+        <div class="header">
+            <h1>Annual Returns Analysis</h1>
+            <div>Portfolio Performance by Year</div>
+        </div>
+        
+        <div class="controls">
+            <div class="section">
+                <h3>Asset Classes</h3>
+                <div class="buttons">
+                    <button id="toggleAC" class="active">Show/Hide All Asset Classes</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>Portfolio Profiles</h3>
+                <div class="buttons">
+                    <button onclick="togglePort(0)">Conservative Income</button>
+                    <button onclick="togglePort(1)">Conservative Balanced</button>
+                    <button onclick="togglePort(2)">Balanced Portfolio</button>
+                    <button onclick="togglePort(3)">Growth Portfolio</button>
+                    <button onclick="togglePort(4)">Aggressive Growth Portfolio</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="view-tabs">
+            <button class="tab-btn active" onclick="switchView('table')">Table View</button>
+            <button class="tab-btn" onclick="switchView('chart')">Bar Chart View</button>
+        </div>
+        
+        <!-- TABLE VIEW -->
+        <div id="tableView" class="view-content active">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>2016</th>
+                        <th>2017</th>
+                        <th>2018</th>
+                        <th>2019</th>
+                        <th>2020</th>
+                        <th>2021</th>
+                        <th>2022</th>
+                        <th>2023</th>
+                        <th>2024</th>
+                        <th>2025</th>
+                        <th>2026</th>
+                        <th>YTD</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="ac-row">
+                        <td><strong>Cash</strong></td>
+                        <td class="positive">+0.02%</td>
+                        <td class="positive">+0.48%</td>
+                        <td class="positive">+1.25%</td>
+                        <td class="positive">+1.60%</td>
+                        <td class="positive">+0.27%</td>
+                        <td class="negative">-0.10%</td>
+                        <td class="positive">+0.82%</td>
+                        <td class="positive">+3.69%</td>
+                        <td class="positive">+3.93%</td>
+                        <td class="positive">+3.05%</td>
+                        <td class="positive">+0.08%</td>
+                        <td class="positive">+0.08%</td>
+                    </tr>
+                    <tr class="ac-row">
+                        <td><strong>Fixed Income</strong></td>
+                        <td class="positive">+6.99%</td>
+                        <td class="positive">+3.75%</td>
+                        <td class="negative">-2.00%</td>
+                        <td class="positive">+7.94%</td>
+                        <td class="positive">+4.45%</td>
+                        <td class="positive">+0.24%</td>
+                        <td class="negative">-9.74%</td>
+                        <td class="positive">+4.50%</td>
+                        <td class="positive">+4.21%</td>
+                        <td class="positive">+6.66%</td>
+                        <td class="positive">+0.27%</td>
+                        <td class="positive">+0.27%</td>
+                    </tr>
+                    <tr class="ac-row">
+                        <td><strong>Equity</strong></td>
+                        <td class="positive">+12.94%</td>
+                        <td class="positive">+23.67%</td>
+                        <td class="negative">-17.20%</td>
+                        <td class="positive">+12.90%</td>
+                        <td class="positive">+21.11%</td>
+                        <td class="positive">+7.66%</td>
+                        <td class="negative">-15.73%</td>
+                        <td class="positive">+7.63%</td>
+                        <td class="positive">+13.33%</td>
+                        <td class="positive">+18.78%</td>
+                        <td class="positive">+2.27%</td>
+                        <td class="positive">+2.27%</td>
+                    </tr>
+                    <tr class="ac-row">
+                        <td><strong>Alternative Investments</strong></td>
+                        <td class="positive">+3.81%</td>
+                        <td class="positive">+6.73%</td>
+                        <td class="negative">-6.11%</td>
+                        <td class="positive">+6.90%</td>
+                        <td class="positive">+7.33%</td>
+                        <td class="positive">+5.56%</td>
+                        <td class="negative">-3.92%</td>
+                        <td class="positive">+8.60%</td>
+                        <td class="positive">+12.62%</td>
+                        <td class="positive">+18.50%</td>
+                        <td class="positive">+2.19%</td>
+                        <td class="positive">+2.19%</td>
+                    </tr>
+                    <tr class="port-row hidden" data-port="0">
+                        <td><strong>Conservative Income</strong></td>
+                        <td class="positive">+5.73%</td>
+                        <td class="positive">+3.74%</td>
+                        <td class="negative">-1.78%</td>
+                        <td class="positive">+7.64%</td>
+                        <td class="positive">+4.86%</td>
+                        <td class="positive">+0.23%</td>
+                        <td class="negative">-9.12%</td>
+                        <td class="positive">+4.46%</td>
+                        <td class="positive">+3.66%</td>
+                        <td class="positive">+5.90%</td>
+                        <td class="positive">+0.25%</td>
+                        <td class="positive">+0.25%</td>
+                    </tr>
+                    <tr class="port-row hidden" data-port="1">
+                        <td><strong>Conservative Balanced</strong></td>
+                        <td class="positive">+7.81%</td>
+                        <td class="positive">+7.99%</td>
+                        <td class="negative">-5.21%</td>
+                        <td class="positive">+10.16%</td>
+                        <td class="positive">+9.52%</td>
+                        <td class="positive">+4.78%</td>
+                        <td class="negative">-10.77%</td>
+                        <td class="positive">+7.58%</td>
+                        <td class="positive">+6.84%</td>
+                        <td class="positive">+9.44%</td>
+                        <td class="positive">+0.83%</td>
+                        <td class="positive">+0.83%</td>
+                    </tr>
+                    <tr class="port-row hidden" data-port="2">
+                        <td><strong>Balanced Portfolio</strong></td>
+                        <td class="positive">+8.68%</td>
+                        <td class="positive">+10.76%</td>
+                        <td class="negative">-7.34%</td>
+                        <td class="positive">+11.31%</td>
+                        <td class="positive">+12.43%</td>
+                        <td class="positive">+8.12%</td>
+                        <td class="negative">-10.82%</td>
+                        <td class="positive">+9.78%</td>
+                        <td class="positive">+9.12%</td>
+                        <td class="positive">+11.51%</td>
+                        <td class="positive">+1.20%</td>
+                        <td class="positive">+1.20%</td>
+                    </tr>
+                    <tr class="port-row hidden" data-port="3">
+                        <td><strong>Growth Portfolio</strong></td>
+                        <td class="positive">+10.48%</td>
+                        <td class="positive">+14.78%</td>
+                        <td class="negative">-10.32%</td>
+                        <td class="positive">+13.50%</td>
+                        <td class="positive">+16.77%</td>
+                        <td class="positive">+12.51%</td>
+                        <td class="negative">-12.08%</td>
+                        <td class="positive">+12.69%</td>
+                        <td class="positive">+11.76%</td>
+                        <td class="positive">+13.95%</td>
+                        <td class="positive">+1.61%</td>
+                        <td class="positive">+1.61%</td>
+                    </tr>
+                    <tr class="port-row hidden" data-port="4">
+                        <td><strong>Aggressive Growth Portfolio</strong></td>
+                        <td class="positive">+11.92%</td>
+                        <td class="positive">+17.64%</td>
+                        <td class="negative">-12.19%</td>
+                        <td class="positive">+15.18%</td>
+                        <td class="positive">+19.85%</td>
+                        <td class="positive">+15.45%</td>
+                        <td class="negative">-13.40%</td>
+                        <td class="positive">+14.58%</td>
+                        <td class="positive">+13.05%</td>
+                        <td class="positive">+14.81%</td>
+                        <td class="positive">+1.74%</td>
+                        <td class="positive">+1.74%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- BAR CHART VIEW -->
+        <div id="chartView" class="view-content">
+            <div class="chart-scroll">
+                <div class="chart-grid">
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect positive" style="--bar-color: #90EE90; height: 0.08449514152936206%;">
+                                        <div class="bar-label positive">0.0%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect positive" style="--bar-color: #4169E1; height: 29.531051964512038%;">
+                                        <div class="bar-label positive">7.0%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect positive" style="--bar-color: #FF6B6B; height: 54.66835656949725%;">
+                                        <div class="bar-label positive">12.9%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect positive" style="--bar-color: #FFD700; height: 16.09632446134347%;">
+                                        <div class="bar-label positive">3.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect positive" style="--bar-color: #505050; height: 24.20785804816223%;">
+                                        <div class="bar-label positive">5.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect positive" style="--bar-color: #707070; height: 32.99535276721588%;">
+                                        <div class="bar-label positive">7.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #909090; height: 36.67089142374313%;">
+                                        <div class="bar-label positive">8.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #A8A8A8; height: 44.27545416138572%;">
+                                        <div class="bar-label positive">10.5%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #C0C0C0; height: 50.35910435149978%;">
+                                        <div class="bar-label positive">11.9%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">2016</div>
+                    </div>
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect positive" style="--bar-color: #90EE90; height: 2.027883396704689%;">
+                                        <div class="bar-label positive">0.5%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect positive" style="--bar-color: #4169E1; height: 15.842839036755386%;">
+                                        <div class="bar-label positive">3.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect positive" style="--bar-color: #FF6B6B; height: 100.0%;">
+                                        <div class="bar-label positive">23.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect positive" style="--bar-color: #FFD700; height: 28.432615124630335%;">
+                                        <div class="bar-label positive">6.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect positive" style="--bar-color: #505050; height: 15.800591465990705%;">
+                                        <div class="bar-label positive">3.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect positive" style="--bar-color: #707070; height: 33.75580904098015%;">
+                                        <div class="bar-label positive">8.0%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #909090; height: 45.45838614279678%;">
+                                        <div class="bar-label positive">10.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #A8A8A8; height: 62.44190959019855%;">
+                                        <div class="bar-label positive">14.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #C0C0C0; height: 74.52471482889733%;">
+                                        <div class="bar-label positive">17.6%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">2017</div>
+                    </div>
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect positive" style="--bar-color: #90EE90; height: 5.280946345585129%;">
+                                        <div class="bar-label positive">1.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect negative" style="--bar-color: #4169E1; height: 8.449514152936205%;">
+                                        <div class="bar-label negative">-2.0%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect negative" style="--bar-color: #FF6B6B; height: 72.66582171525137%;">
+                                        <div class="bar-label negative">-17.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect negative" style="--bar-color: #FFD700; height: 25.81326573722011%;">
+                                        <div class="bar-label negative">-6.1%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect negative" style="--bar-color: #505050; height: 7.520067596113222%;">
+                                        <div class="bar-label negative">-1.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect negative" style="--bar-color: #707070; height: 22.010984368398816%;">
+                                        <div class="bar-label negative">-5.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect negative" style="--bar-color: #909090; height: 31.009716941275872%;">
+                                        <div class="bar-label negative">-7.3%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect negative" style="--bar-color: #A8A8A8; height: 43.59949302915082%;">
+                                        <div class="bar-label negative">-10.3%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect negative" style="--bar-color: #C0C0C0; height: 51.49978876214617%;">
+                                        <div class="bar-label negative">-12.2%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">2018</div>
+                    </div>
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect positive" style="--bar-color: #90EE90; height: 6.759611322348964%;">
+                                        <div class="bar-label positive">1.6%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect positive" style="--bar-color: #4169E1; height: 33.544571187156734%;">
+                                        <div class="bar-label positive">7.9%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect positive" style="--bar-color: #FF6B6B; height: 54.49936628643852%;">
+                                        <div class="bar-label positive">12.9%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect positive" style="--bar-color: #FFD700; height: 29.150823827629914%;">
+                                        <div class="bar-label positive">6.9%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect positive" style="--bar-color: #505050; height: 32.27714406421631%;">
+                                        <div class="bar-label positive">7.6%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect positive" style="--bar-color: #707070; height: 42.923531896915925%;">
+                                        <div class="bar-label positive">10.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #909090; height: 47.78200253485424%;">
+                                        <div class="bar-label positive">11.3%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #A8A8A8; height: 57.03422053231939%;">
+                                        <div class="bar-label positive">13.5%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #C0C0C0; height: 64.13181242078579%;">
+                                        <div class="bar-label positive">15.2%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">2019</div>
+                    </div>
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect positive" style="--bar-color: #90EE90; height: 1.1406844106463878%;">
+                                        <div class="bar-label positive">0.3%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect positive" style="--bar-color: #4169E1; height: 18.80016899028306%;">
+                                        <div class="bar-label positive">4.5%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect positive" style="--bar-color: #FF6B6B; height: 89.18462188424165%;">
+                                        <div class="bar-label positive">21.1%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect positive" style="--bar-color: #FFD700; height: 30.967469370511193%;">
+                                        <div class="bar-label positive">7.3%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect positive" style="--bar-color: #505050; height: 20.53231939163498%;">
+                                        <div class="bar-label positive">4.9%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect positive" style="--bar-color: #707070; height: 40.219687367976334%;">
+                                        <div class="bar-label positive">9.5%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #909090; height: 52.51373046049852%;">
+                                        <div class="bar-label positive">12.4%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #A8A8A8; height: 70.84917617237008%;">
+                                        <div class="bar-label positive">16.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #C0C0C0; height: 83.86142796789184%;">
+                                        <div class="bar-label positive">19.9%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">2020</div>
+                    </div>
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect negative" style="--bar-color: #90EE90; height: 0.42247570764681025%;">
+                                        <div class="bar-label negative">-0.1%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect positive" style="--bar-color: #4169E1; height: 1.0139416983523446%;">
+                                        <div class="bar-label positive">0.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect positive" style="--bar-color: #FF6B6B; height: 32.36163920574567%;">
+                                        <div class="bar-label positive">7.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect positive" style="--bar-color: #FFD700; height: 23.48964934516265%;">
+                                        <div class="bar-label positive">5.6%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect positive" style="--bar-color: #505050; height: 0.9716941275876637%;">
+                                        <div class="bar-label positive">0.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect positive" style="--bar-color: #707070; height: 20.194338825517534%;">
+                                        <div class="bar-label positive">4.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #909090; height: 34.30502746092099%;">
+                                        <div class="bar-label positive">8.1%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #A8A8A8; height: 52.851711026615966%;">
+                                        <div class="bar-label positive">12.5%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #C0C0C0; height: 65.27249683143218%;">
+                                        <div class="bar-label positive">15.4%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">2021</div>
+                    </div>
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect positive" style="--bar-color: #90EE90; height: 3.4643008027038444%;">
+                                        <div class="bar-label positive">0.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect negative" style="--bar-color: #4169E1; height: 41.14913392479932%;">
+                                        <div class="bar-label negative">-9.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect negative" style="--bar-color: #FF6B6B; height: 66.45542881284325%;">
+                                        <div class="bar-label negative">-15.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect negative" style="--bar-color: #FFD700; height: 16.561047739754965%;">
+                                        <div class="bar-label negative">-3.9%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect negative" style="--bar-color: #505050; height: 38.5297845373891%;">
+                                        <div class="bar-label negative">-9.1%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect negative" style="--bar-color: #707070; height: 45.50063371356147%;">
+                                        <div class="bar-label negative">-10.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect negative" style="--bar-color: #909090; height: 45.71187156738487%;">
+                                        <div class="bar-label negative">-10.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect negative" style="--bar-color: #A8A8A8; height: 51.035065483734684%;">
+                                        <div class="bar-label negative">-12.1%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect negative" style="--bar-color: #C0C0C0; height: 56.611744824672584%;">
+                                        <div class="bar-label negative">-13.4%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">2022</div>
+                    </div>
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect positive" style="--bar-color: #90EE90; height: 15.589353612167297%;">
+                                        <div class="bar-label positive">3.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect positive" style="--bar-color: #4169E1; height: 19.011406844106464%;">
+                                        <div class="bar-label positive">4.5%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect positive" style="--bar-color: #FF6B6B; height: 32.23489649345163%;">
+                                        <div class="bar-label positive">7.6%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect positive" style="--bar-color: #FFD700; height: 36.332910857625684%;">
+                                        <div class="bar-label positive">8.6%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect positive" style="--bar-color: #505050; height: 18.842416561047738%;">
+                                        <div class="bar-label positive">4.5%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect positive" style="--bar-color: #707070; height: 32.02365863962822%;">
+                                        <div class="bar-label positive">7.6%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #909090; height: 41.31812420785804%;">
+                                        <div class="bar-label positive">9.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #A8A8A8; height: 53.61216730038022%;">
+                                        <div class="bar-label positive">12.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #C0C0C0; height: 61.596958174904934%;">
+                                        <div class="bar-label positive">14.6%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">2023</div>
+                    </div>
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect positive" style="--bar-color: #90EE90; height: 16.603295310519645%;">
+                                        <div class="bar-label positive">3.9%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect positive" style="--bar-color: #4169E1; height: 17.78622729193071%;">
+                                        <div class="bar-label positive">4.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect positive" style="--bar-color: #FF6B6B; height: 56.31601182931981%;">
+                                        <div class="bar-label positive">13.3%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect positive" style="--bar-color: #FFD700; height: 53.31643430502745%;">
+                                        <div class="bar-label positive">12.6%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect positive" style="--bar-color: #505050; height: 15.462610899873258%;">
+                                        <div class="bar-label positive">3.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect positive" style="--bar-color: #707070; height: 28.89733840304182%;">
+                                        <div class="bar-label positive">6.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #909090; height: 38.5297845373891%;">
+                                        <div class="bar-label positive">9.1%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #A8A8A8; height: 49.683143219264885%;">
+                                        <div class="bar-label positive">11.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #C0C0C0; height: 55.13307984790874%;">
+                                        <div class="bar-label positive">13.1%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">2024</div>
+                    </div>
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect positive" style="--bar-color: #90EE90; height: 12.885509083227712%;">
+                                        <div class="bar-label positive">3.0%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect positive" style="--bar-color: #4169E1; height: 28.136882129277563%;">
+                                        <div class="bar-label positive">6.7%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect positive" style="--bar-color: #FF6B6B; height: 79.34093789607097%;">
+                                        <div class="bar-label positive">18.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect positive" style="--bar-color: #FFD700; height: 78.1580059146599%;">
+                                        <div class="bar-label positive">18.5%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect positive" style="--bar-color: #505050; height: 24.92606675116181%;">
+                                        <div class="bar-label positive">5.9%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect positive" style="--bar-color: #707070; height: 39.88170680185889%;">
+                                        <div class="bar-label positive">9.4%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #909090; height: 48.62695395014786%;">
+                                        <div class="bar-label positive">11.5%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #A8A8A8; height: 58.93536121673003%;">
+                                        <div class="bar-label positive">13.9%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #C0C0C0; height: 62.5686523024926%;">
+                                        <div class="bar-label positive">14.8%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">2025</div>
+                    </div>
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect positive" style="--bar-color: #90EE90; height: 0.33798056611744826%;">
+                                        <div class="bar-label positive">0.1%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect positive" style="--bar-color: #4169E1; height: 1.1406844106463878%;">
+                                        <div class="bar-label positive">0.3%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect positive" style="--bar-color: #FF6B6B; height: 9.590198563582593%;">
+                                        <div class="bar-label positive">2.3%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect positive" style="--bar-color: #FFD700; height: 9.252217997465145%;">
+                                        <div class="bar-label positive">2.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect positive" style="--bar-color: #505050; height: 1.0561892691170256%;">
+                                        <div class="bar-label positive">0.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect positive" style="--bar-color: #707070; height: 3.506548373468525%;">
+                                        <div class="bar-label positive">0.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #909090; height: 5.069708491761723%;">
+                                        <div class="bar-label positive">1.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #A8A8A8; height: 6.801858893113646%;">
+                                        <div class="bar-label positive">1.6%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #C0C0C0; height: 7.3510773130545%;">
+                                        <div class="bar-label positive">1.7%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">2026</div>
+                    </div>
+                    <div class="year-group">
+                        <div class="chart-area">
+                            <div class="baseline"></div>
+                            <div class="bars">
+                                <div class="bar ac-bar" data-group="Cash">
+                                    <div class="bar-rect positive" style="--bar-color: #90EE90; height: 0.33798056611744826%;">
+                                        <div class="bar-label positive">0.1%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Fixed Income">
+                                    <div class="bar-rect positive" style="--bar-color: #4169E1; height: 1.1406844106463878%;">
+                                        <div class="bar-label positive">0.3%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Equity">
+                                    <div class="bar-rect positive" style="--bar-color: #FF6B6B; height: 9.590198563582593%;">
+                                        <div class="bar-label positive">2.3%</div>
+                                    </div>
+                                </div>
+                                <div class="bar ac-bar" data-group="Alternative Investments">
+                                    <div class="bar-rect positive" style="--bar-color: #FFD700; height: 9.252217997465145%;">
+                                        <div class="bar-label positive">2.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="0" data-group="Conservative Income">
+                                    <div class="bar-rect positive" style="--bar-color: #505050; height: 1.0561892691170256%;">
+                                        <div class="bar-label positive">0.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="1" data-group="Conservative Balanced">
+                                    <div class="bar-rect positive" style="--bar-color: #707070; height: 3.506548373468525%;">
+                                        <div class="bar-label positive">0.8%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="2" data-group="Balanced Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #909090; height: 5.069708491761723%;">
+                                        <div class="bar-label positive">1.2%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="3" data-group="Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #A8A8A8; height: 6.801858893113646%;">
+                                        <div class="bar-label positive">1.6%</div>
+                                    </div>
+                                </div>
+                                <div class="bar port-bar hidden" data-port="4" data-group="Aggressive Growth Portfolio">
+                                    <div class="bar-rect positive" style="--bar-color: #C0C0C0; height: 7.3510773130545%;">
+                                        <div class="bar-label positive">1.7%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-label">YTD</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-title">Color Legend</div>
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #90EE90;"></div>
+                        <div class="legend-label">Cash</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4169E1;"></div>
+                        <div class="legend-label">Fixed Income</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #FF6B6B;"></div>
+                        <div class="legend-label">Equity</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #FFD700;"></div>
+                        <div class="legend-label">Alternative Investments</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(to right, #505050, #C0C0C0);"></div>
+                        <div class="legend-label">Portfolios (Gray Shades)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let showAC = true;
+        let activePorts = new Set();
+        
+        // Toggle asset classes
+        document.getElementById('toggleAC').onclick = function() {
+            showAC = !showAC;
+            this.classList.toggle('active');
+            document.querySelectorAll('.ac-row, .ac-bar').forEach(el => {
+                el.classList.toggle('hidden', !showAC);
+            });
+        };
+        
+        // Toggle portfolios
+        function togglePort(idx) {
+            event.target.classList.toggle('active');
+            document.querySelectorAll(`[data-port="${idx}"]`).forEach(el => {
+                el.classList.toggle('hidden');
+            });
+        }
+        
+        // Switch between views
+        function switchView(view) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.view-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (view === 'table') {
+                document.getElementById('tableView').classList.add('active');
+            } else {
+                document.getElementById('chartView').classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

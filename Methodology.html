@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-75MKR2S7LT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  
+  gtag('config', 'G-75MKR2S7LT');
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATID - Methodology</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SATID Complete Embedded Styles */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        /* NAVIGATION - COMPLETE */
+        .navbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            max-width: 100% !important;
+            padding: 0 40px !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            justify-content: space-between !important;
+            width: 100% !important;
+        }
+        
+        .nav-menu li {
+            list-style: none;
+        }
+        
+        .nav-menu a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 20px 0;
+            display: block;
+            transition: color 0.3s;
+            font-size: 17px;
+            font-weight: 400;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #3498db;
+        }
+        
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropbtn {
+            cursor: pointer;
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 20px 0;
+            display: block;
+            transition: color 0.3s;
+            font-size: 17px;
+            font-weight: 400;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #34495e;
+            min-width: 250px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+            z-index: 1000;
+            top: 100%;
+            left: 0;
+        }
+        
+        /* Right-align the last dropdown to prevent overflow */
+        .nav-menu li.dropdown:last-of-type .dropdown-content {
+            left: auto;
+            right: 0;
+        }
+        
+        .dropdown-content a {
+            color: #ecf0f1;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-bottom: 1px solid #2c3e50;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #2c3e50;
+            color: #3498db;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown:hover .dropbtn {
+            color: #3498db;
+        }
+        
+        /* HERO SECTION */
+        .hero {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3d6cb9 100%);
+            padding: 40px 20px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" fill="rgba(255,255,255,0.03)"/></svg>') repeat;
+            opacity: 0.5;
+        }
+        
+        .hero-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.6rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* CONTAINER & CONTENT PAGE */
+        .container {
+            max-width: 100% !important;
+            margin: -60px auto 60px;
+            padding: 0 10px !important;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .content-page {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            padding: 50px 30px 70px 30px !important;
+            animation: fadeIn 1s ease-out;
+            max-width: 850px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* CONTENT SECTIONS */
+        .content-section {
+            margin-bottom: 50px;
+        }
+        
+        .content-section h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            color: #1e3c72;
+            letter-spacing: -0.5px;
+        }
+        
+        .content-section h2::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #2a5298, #3d6cb9);
+            margin: 15px auto 0;
+            border-radius: 2px;
+        }
+        
+        .content-section h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-top: 35px;
+            margin-bottom: 18px;
+            position: relative;
+            padding-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+        
+        .content-section h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #2a5298, #3d6cb9);
+            border-radius: 2px;
+        }
+        
+        .content-section h3 a {
+            color: #1e3c72;
+            text-decoration: underline;
+            text-decoration-color: #1e3c72;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 4px;
+            transition: color 0.3s ease;
+        }
+        
+        .content-section h3 a:hover {
+            color: #2a5298;
+            text-decoration-color: #2a5298;
+        }
+        
+        .content-section p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+        
+        /* HIGHLIGHT BOXES */
+        .highlight-box {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e9ecef 100%);
+            border-left: 4px solid #2a5298;
+            padding: 30px 35px;
+            margin: 30px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+        
+        .highlight-box p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #4a5568;
+        }
+        
+        /* FOOTER */
+        footer {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 80px;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+        }
+        
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 1400px) {
+            .content-page {
+                padding: 50px 30px 60px 30px !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .content-page {
+                padding: 40px 25px !important;
+            }
+            
+            .content-section h2 {
+                font-size: 1.6rem;
+            }
+            
+            .nav-menu {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="index.html">Index</a></li>
+                <li><a href="Philosophy.html">Philosophy</a></li>
+                <li><a href="Methodology.html" class="active">Methodology</a></li>
+                <li><a href="Support_Levels_Interactive.html">Risk Level Setting</a></li>
+                <li><a href="Portfolio_Risk_Exposure.html">Risk Exposure</a></li>
+                <li><a href="SATID_Risk_Score.html">Risk Score</a></li>
+                <li><a href="Portfolio_Risk_Dashboard.html">Risk Dashboard</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Market Views</a>
+                    <div class="dropdown-content">
+                        <a href="Market_Views.html">About Market Views</a>
+                        <a href="SATID_Relative_Performance.html">Cross Asset Validations</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Appendix</a>
+                    <div class="dropdown-content">
+                        <a href="portfolio_dashboard.html">Portfolios Profile Snapshot</a>
+                        <a href="model_portfolios.html">Model Portfolios</a>
+                        <a href="portfolio_statistics_monthly.html">Portfolio Statistics</a>
+                        <a href="generate_annual_returns_chart.html">Annual Returns</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Methodology</h1>
+            <p class="hero-subtitle">A Disciplined, Rules-Based Framework for Portfolio Risk Management</p>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <div class="container">
+        <div class="content-page">
+            
+            <!-- Introduction Section -->
+            <section class="content-section">
+                <h2>THE CHALLENGE</h2>
+                <p>Under normal market conditions, diversification provides stability and serves as a key risk-mitigation tool. During periods of market stress or regime change, however, correlations can break down, and portfolios may incur losses beyond expectations. In such environments, both further downside and potential recovery become difficult to predict, making discretionary decision-making vulnerable to emotional bias.</p>
+                
+                <p>The SATID methodology addresses this challenge through continuous monitoring of each portfolio investment, ensuring it behaves in line with its original assumptions and objectives. Defined thresholds identify when an investment is at risk, prompting timely and disciplined intervention.</p>
+                
+                <p>By aggregating these thresholds, SATID quantifies the maximum drawdown a portfolio is expected to experience under normal conditions—beyond which action is required.</p>
+                
+                <p>In addition, SATID incorporates continuously updated correlation and volatility data to derive a dynamic risk factor, indicating the probability that each investment will reach its risk threshold. The methodology operates across three core components:</p>
+            </section>
+
+            <!-- Core Components Section -->
+            <section class="content-section">
+                <h2>THE THREE CORE COMPONENTS</h2>
+                
+                <h3><a href="Support_Levels_Interactive.html">Risk Level Determination – The Pre-Emptive Signal</a></h3>
+                <p>For each investment, SATID calculates a dynamic risk threshold using an optimized, transparent algorithm updated weekly. While the algorithm determines the optimal level, thresholds can be customized to align with specific portfolio risk requirements.</p>
+                
+                <h3><a href="Portfolio_Risk_Exposure.html">Downside Quantification – Translating Tolerance into Action</a></h3>
+                <p>Individual investment risks are aggregated at the asset-class and total-portfolio levels, ensuring alignment with the client's stated risk tolerance. This process establishes actionable limits, shifting portfolio management from a benchmark-driven approach to an actively risk-managed framework.</p>
+                
+                <h3><a href="SATID_Risk_Score.html">The SATID Score – A Forward-Looking Risk Compass</a></h3>
+                <p>A proprietary, forward-looking risk score—based on 13-week rolling correlations and volatility—provides dynamic one-week and one-month assessments. The SATID Score acts as a portfolio health check, highlighting the condition of each investment and anticipating which holdings may require reassessment.</p>
+            </section>
+
+            <!-- Summary Section -->
+            <section class="content-section">
+                <h2>SUMMARY</h2>
+                <p>SATID uses benchmarks as an initial reference, benefiting from diversification and long-term growth potential. However, it systematically deviates when the portfolio's trajectory no longer aligns with the client's mandate. During downturns, SATID replaces benchmark-centric management with a dynamic, rules-based risk discipline that prioritizes downside protection without compromising long-term growth.</p>
+            </section>
+
+            <!-- Conclusion Highlight Box -->
+            <div class="highlight-box">
+                <p style="margin: 0;">This enables investors to allocate capital with confidence and transparency, clearly understanding portfolio boundaries and anticipating when investments approach reassessment—delivering discipline and peace of mind across all market conditions.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 SATID Investment Management. All rights reserved.</p>
+    </footer>
+</body>
+</html>

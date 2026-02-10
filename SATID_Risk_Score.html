@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATID Risk Score Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================
+           SATID Website - COMPLETE MASTER STYLESHEET
+           ============================================ */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        /* NAVIGATION */
+        .navbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 100% !important;
+            padding: 0 40px !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            justify-content: space-between !important;
+            width: 100% !important;
+        }
+
+        .nav-menu li {
+            list-style: none;
+        }
+
+        .nav-menu a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 20px 0;
+            display: block;
+            transition: color 0.3s;
+            font-size: 17px;
+            font-weight: 400;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #3498db;
+        }
+
+        /* DROPDOWN MENU */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropbtn {
+            cursor: pointer;
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 20px 0;
+            display: block;
+            transition: color 0.3s;
+            font-size: 17px;
+            font-weight: 400;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #34495e;
+            min-width: 250px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+            z-index: 1000;
+            top: 100%;
+            left: 0;
+        }
+
+        /* Right-align the last dropdown to prevent overflow */
+        .nav-menu li.dropdown:last-of-type .dropdown-content {
+            left: auto;
+            right: 0;
+        }
+
+        .dropdown-content a {
+            color: #ecf0f1;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-bottom: 1px solid #2c3e50;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #2c3e50;
+            color: #3498db;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown:hover .dropbtn {
+            color: #3498db;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3d6cb9 100%);
+            padding: 40px 20px 80px;
+            position: relative;
+            overflow: hidden;
+            color: white;
+            text-align: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" fill="rgba(255,255,255,0.03)"/></svg>') repeat;
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: 1.6rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 100% !important;
+            margin: -60px auto 60px;
+            padding: 0 10px !important;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-page {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            padding: 50px 30px 70px 30px !important;
+            animation: fadeIn 1s ease-out;
+            max-width: 977px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* TYPOGRAPHY */
+        h1 {
+            color: #1e3c72;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1e3c72;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-top: 35px;
+            margin-bottom: 18px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #4a5568;
+            margin-bottom: 20px;
+        }
+
+        /* TABLES */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        }
+
+        th {
+            padding: 14px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+            color: white;
+        }
+
+        td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        tbody tr:hover {
+            background-color: #e8f0fe;
+        }
+
+        /* RISK LEVEL CLASSES */
+        .risk-critical { 
+            background-color: #c0392b; 
+            color: white; 
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .risk-high { 
+            background-color: #e74c3c; 
+            color: white; 
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .risk-moderate { 
+            background-color: #f39c12; 
+            color: white; 
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .risk-low { 
+            background-color: #27ae60; 
+            color: white; 
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .risk-minimal { 
+            background-color: #16a085; 
+            color: white; 
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        /* SCORE BOXES */
+        .scores-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .score-box {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .score-value {
+            font-size: 30px;
+            font-weight: bold;
+            color: white;
+            margin: 20px 0 15px 0;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .score-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .score-description {
+            color: #7f8c8d;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* INTERPRETATION SECTIONS */
+        .interpretation-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .interpretation-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .interpretation-box {
+            padding: 15px;
+            border-left: 4px solid;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+
+        .etf-table-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        /* LEGEND */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="index.html">Index</a></li>
+                <li><a href="Philosophy.html">Philosophy</a></li>
+                <li><a href="Methodology.html">Methodology</a></li>
+                <li><a href="Support_Levels_Interactive.html">Risk Level Setting</a></li>
+                <li><a href="Portfolio_Risk_Exposure.html">Risk Exposure</a></li>
+                <li><a href="SATID_Risk_Score.html" class="active">Risk Score</a></li>
+                <li><a href="Portfolio_Risk_Dashboard.html">Risk Dashboard</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Market Views</a>
+                    <div class="dropdown-content">
+                        <a href="Market_Views.html">About Market Views</a>
+                        <a href="SATID_Relative_Performance.html">Cross Asset Validations</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Appendix</a>
+                    <div class="dropdown-content">
+                        <a href="portfolio_dashboard.html">Portfolios Profile Snapshot</a>
+                        <a href="model_portfolios.html">Model Portfolios</a>
+                        <a href="portfolio_statistics_monthly.html">Portfolio Statistics</a>
+                        <a href="generate_annual_returns_chart.html">Annual Returns</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>SATID Risk Score</h1>
+            <p class="hero-subtitle">Portfolio Risk Assessment Dashboard</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="content-page">
+            
+            <div style="text-align: center; color: #7f8c8d; margin-bottom: 30px; font-size: 14px;">
+                Analysis: February 09, 2026 at 15:57
+            </div>
+            
+            <div class="scores-container">
+            <div class="score-box">
+                <h3 style="color: #34495e; margin-bottom: 10px;">Portfolio SATID Score - 1 Week Horizon</h3>
+                <div class="score-value" style="background-color: #16a085;">
+                    16.2
+                </div>
+                <div class="score-label" style="background-color: #16a085;">
+                    MINIMAL RISK
+                </div>
+                <div class="score-description">
+                    Weighted average of individual ETF scores
+                </div>
+            </div>
+            
+            <div class="score-box">
+                <h3 style="color: #34495e; margin-bottom: 10px;">Portfolio SATID Score - 1 Month Horizon</h3>
+                <div class="score-value" style="background-color: #27ae60;">
+                    46.5
+                </div>
+                <div class="score-label" style="background-color: #27ae60;">
+                    LOW RISK
+                </div>
+                <div class="score-description">
+                    Adjusted for 1-month volatility (√4.33 weeks)
+                </div>
+            </div>
+        </div>
+    
+    <div class="interpretation-section">
+        <h2>Risk Level Interpretation & Action Guidelines</h2>
+        <div class="interpretation-grid">
+            <div class="interpretation-box" style="border-left-color: #c0392b; background-color: #fce4e4;">
+                <strong style="color: #c0392b;">CRITICAL (90-100)</strong>
+                <p style="margin: 5px 0 0 0; font-size: 13px;">0-0.4σ from support. At or touching support - regime change likely. Switch to full SATID mode - actively reduce/exit positions.</p>
+            </div>
+            <div class="interpretation-box" style="border-left-color: #e74c3c; background-color: #fadbd8;">
+                <strong style="color: #e74c3c;">HIGH (75-89)</strong>
+                <p style="margin: 5px 0 0 0; font-size: 13px;">0.4-1.0σ from support. Within one standard deviation - one typical move breaches support. High alert - prepare action plan.</p>
+            </div>
+            <div class="interpretation-box" style="border-left-color: #f39c12; background-color: #fef5e7;">
+                <strong style="color: #f39c12;">MODERATE (50-74)</strong>
+                <p style="margin: 5px 0 0 0; font-size: 13px;">1.0-2.0σ from support. Need 1-2 standard moves to breach. Monitor closely, consider hybrid MPT/SATID approach.</p>
+            </div>
+            <div class="interpretation-box" style="border-left-color: #27ae60; background-color: #eafaf1;">
+                <strong style="color: #27ae60;">LOW (25-49)</strong>
+                <p style="margin: 5px 0 0 0; font-size: 13px;">2.0-3.0σ from support. Comfortable distance from support. Normal MPT management with enhanced monitoring.</p>
+            </div>
+            <div class="interpretation-box" style="border-left-color: #16a085; background-color: #e8f8f5;">
+                <strong style="color: #16a085;">MINIMAL (0-24)</strong>
+                <p style="margin: 5px 0 0 0; font-size: 13px;">Beyond 3.0σ from support. Very far from support. Full MPT mode - manage according to benchmark and allocations.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="etf-table-section">
+        <h2>Individual ETF Risk Analysis</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ETF</th>
+                    <th>Current Price</th>
+                    <th>FBIS Support</th>
+                    <th>Distance %</th>
+                    <th>Weekly Vol</th>
+                    <th>Allocation</th>
+                    <th>SATID Score<br>(1 Week)</th>
+                    <th>Contribution<br>(1 Week)</th>
+                    <th>SATID Score<br>(1 Month)</th>
+                    <th>Contribution<br>(1 Month)</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td><strong>XLY</strong> ⚠️ AT SUPPORT</td>
+            <td>$116.55</td>
+            <td>$116.82</td>
+            <td>-0.23%</td>
+            <td>2.61%</td>
+            <td>1.2%</td>
+            <td class="risk-critical"><strong>100.0</strong></td>
+            <td>1.20</td>
+            <td class="risk-critical"><strong>100.0</strong></td>
+            <td>1.20</td>
+        </tr>
+        
+        <tr>
+            <td><strong>HEAL</strong> ⚠️ AT SUPPORT</td>
+            <td>$26.15</td>
+            <td>$27.94</td>
+            <td>-6.85%</td>
+            <td>3.54%</td>
+            <td>1.2%</td>
+            <td class="risk-critical"><strong>100.0</strong></td>
+            <td>1.20</td>
+            <td class="risk-critical"><strong>100.0</strong></td>
+            <td>1.20</td>
+        </tr>
+        
+        <tr>
+            <td><strong>ARKF</strong> ⚠️ AT SUPPORT</td>
+            <td>$39.31</td>
+            <td>$41.65</td>
+            <td>-5.96%</td>
+            <td>4.76%</td>
+            <td>1.2%</td>
+            <td class="risk-critical"><strong>100.0</strong></td>
+            <td>1.20</td>
+            <td class="risk-critical"><strong>100.0</strong></td>
+            <td>1.20</td>
+        </tr>
+        
+        <tr>
+            <td><strong>ESPO</strong> ⚠️ AT SUPPORT</td>
+            <td>$95.98</td>
+            <td>$99.36</td>
+            <td>-3.52%</td>
+            <td>2.34%</td>
+            <td>0.8%</td>
+            <td class="risk-critical"><strong>100.0</strong></td>
+            <td>0.80</td>
+            <td class="risk-critical"><strong>100.0</strong></td>
+            <td>0.80</td>
+        </tr>
+        
+        <tr>
+            <td><strong>BKCH</strong> </td>
+            <td>$65.00</td>
+            <td>$64.56</td>
+            <td>0.68%</td>
+            <td>9.75%</td>
+            <td>1.2%</td>
+            <td class="risk-critical"><strong>98.2</strong></td>
+            <td>1.18</td>
+            <td class="risk-critical"><strong>99.2</strong></td>
+            <td>1.19</td>
+        </tr>
+        
+        <tr>
+            <td><strong>EBIZ</strong> </td>
+            <td>$30.20</td>
+            <td>$29.74</td>
+            <td>1.51%</td>
+            <td>2.72%</td>
+            <td>1.2%</td>
+            <td class="risk-high"><strong>86.1</strong></td>
+            <td>1.03</td>
+            <td class="risk-critical"><strong>93.3</strong></td>
+            <td>1.12</td>
+        </tr>
+        
+        <tr>
+            <td><strong>XLK</strong> </td>
+            <td>$142.08</td>
+            <td>$140.05</td>
+            <td>1.43%</td>
+            <td>2.43%</td>
+            <td>1.8%</td>
+            <td class="risk-high"><strong>85.3</strong></td>
+            <td>1.54</td>
+            <td class="risk-critical"><strong>93.0</strong></td>
+            <td>1.67</td>
+        </tr>
+        
+        <tr>
+            <td><strong>XLC</strong> </td>
+            <td>$115.43</td>
+            <td>$113.04</td>
+            <td>2.07%</td>
+            <td>1.90%</td>
+            <td>1.2%</td>
+            <td class="risk-moderate"><strong>72.7</strong></td>
+            <td>0.87</td>
+            <td class="risk-high"><strong>86.9</strong></td>
+            <td>1.04</td>
+        </tr>
+        
+        <tr>
+            <td><strong>QQQ</strong> </td>
+            <td>$609.49</td>
+            <td>$582.12</td>
+            <td>4.49%</td>
+            <td>2.10%</td>
+            <td>3.5%</td>
+            <td class="risk-low"><strong>46.5</strong></td>
+            <td>1.63</td>
+            <td class="risk-moderate"><strong>74.3</strong></td>
+            <td>2.60</td>
+        </tr>
+        
+        <tr>
+            <td><strong>ARKX</strong> </td>
+            <td>$32.03</td>
+            <td>$28.31</td>
+            <td>11.60%</td>
+            <td>4.71%</td>
+            <td>0.8%</td>
+            <td class="risk-low"><strong>38.4</strong></td>
+            <td>0.31</td>
+            <td class="risk-moderate"><strong>70.4</strong></td>
+            <td>0.56</td>
+        </tr>
+        
+        <tr>
+            <td><strong>SPY</strong> </td>
+            <td>$690.64</td>
+            <td>$661.63</td>
+            <td>4.20%</td>
+            <td>1.39%</td>
+            <td>17.5%</td>
+            <td class="risk-minimal"><strong>24.4</strong></td>
+            <td>4.27</td>
+            <td class="risk-moderate"><strong>63.7</strong></td>
+            <td>11.14</td>
+        </tr>
+        
+        <tr>
+            <td><strong>EWG</strong> </td>
+            <td>$43.99</td>
+            <td>$41.63</td>
+            <td>5.38%</td>
+            <td>1.75%</td>
+            <td>1.4%</td>
+            <td class="risk-minimal"><strong>23.2</strong></td>
+            <td>0.33</td>
+            <td class="risk-moderate"><strong>63.1</strong></td>
+            <td>0.88</td>
+        </tr>
+        
+        <tr>
+            <td><strong>INDA</strong> </td>
+            <td>$53.43</td>
+            <td>$50.07</td>
+            <td>6.29%</td>
+            <td>1.76%</td>
+            <td>1.7%</td>
+            <td class="risk-minimal"><strong>10.5</strong></td>
+            <td>0.18</td>
+            <td class="risk-moderate"><strong>57.0</strong></td>
+            <td>1.00</td>
+        </tr>
+        
+        <tr>
+            <td><strong>WTMF</strong> </td>
+            <td>$38.56</td>
+            <td>$36.68</td>
+            <td>4.88%</td>
+            <td>1.27%</td>
+            <td>3.0%</td>
+            <td class="risk-minimal"><strong>4.3</strong></td>
+            <td>0.13</td>
+            <td class="risk-moderate"><strong>54.0</strong></td>
+            <td>1.62</td>
+        </tr>
+        
+        <tr>
+            <td><strong>QTUM</strong> </td>
+            <td>$116.70</td>
+            <td>$102.95</td>
+            <td>11.79%</td>
+            <td>3.07%</td>
+            <td>1.6%</td>
+            <td class="risk-minimal"><strong>4.0</strong></td>
+            <td>0.06</td>
+            <td class="risk-moderate"><strong>53.9</strong></td>
+            <td>0.86</td>
+        </tr>
+        
+        <tr>
+            <td><strong>EMB</strong> </td>
+            <td>$96.61</td>
+            <td>$95.50</td>
+            <td>1.15%</td>
+            <td>0.30%</td>
+            <td>6.0%</td>
+            <td class="risk-minimal"><strong>3.9</strong></td>
+            <td>0.24</td>
+            <td class="risk-moderate"><strong>53.8</strong></td>
+            <td>3.23</td>
+        </tr>
+        
+        <tr>
+            <td><strong>EWZ</strong> </td>
+            <td>$37.96</td>
+            <td>$32.43</td>
+            <td>14.56%</td>
+            <td>3.71%</td>
+            <td>1.7%</td>
+            <td class="risk-minimal"><strong>1.9</strong></td>
+            <td>0.03</td>
+            <td class="risk-moderate"><strong>52.8</strong></td>
+            <td>0.92</td>
+        </tr>
+        
+        <tr>
+            <td><strong>PPA</strong> </td>
+            <td>$176.51</td>
+            <td>$157.32</td>
+            <td>10.87%</td>
+            <td>2.75%</td>
+            <td>1.2%</td>
+            <td class="risk-minimal"><strong>1.3</strong></td>
+            <td>0.02</td>
+            <td class="risk-moderate"><strong>52.6</strong></td>
+            <td>0.63</td>
+        </tr>
+        
+        <tr>
+            <td><strong>BIL</strong> </td>
+            <td>$91.44</td>
+            <td>$89.66</td>
+            <td>1.96%</td>
+            <td>0.02%</td>
+            <td>3.0%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+        </tr>
+        
+        <tr>
+            <td><strong>IGSB</strong> </td>
+            <td>$52.98</td>
+            <td>$52.34</td>
+            <td>1.20%</td>
+            <td>0.13%</td>
+            <td>1.5%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+        </tr>
+        
+        <tr>
+            <td><strong>IGIB</strong> </td>
+            <td>$53.90</td>
+            <td>$53.03</td>
+            <td>1.62%</td>
+            <td>0.33%</td>
+            <td>1.5%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>40.8</strong></td>
+            <td>0.61</td>
+        </tr>
+        
+        <tr>
+            <td><strong>LQD</strong> </td>
+            <td>$110.35</td>
+            <td>$107.71</td>
+            <td>2.39%</td>
+            <td>0.47%</td>
+            <td>6.0%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>38.8</strong></td>
+            <td>2.33</td>
+        </tr>
+        
+        <tr>
+            <td><strong>HYS</strong> </td>
+            <td>$94.67</td>
+            <td>$93.44</td>
+            <td>1.30%</td>
+            <td>0.23%</td>
+            <td>10.5%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>33.4</strong></td>
+            <td>3.51</td>
+        </tr>
+        
+        <tr>
+            <td><strong>CEMB</strong> </td>
+            <td>$46.01</td>
+            <td>$45.43</td>
+            <td>1.27%</td>
+            <td>0.16%</td>
+            <td>4.5%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-minimal"><strong>4.5</strong></td>
+            <td>0.20</td>
+        </tr>
+        
+        <tr>
+            <td><strong>VGK</strong> </td>
+            <td>$88.89</td>
+            <td>$80.53</td>
+            <td>9.41%</td>
+            <td>1.19%</td>
+            <td>3.5%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-minimal"><strong>4.9</strong></td>
+            <td>0.17</td>
+        </tr>
+        
+        <tr>
+            <td><strong>EWQ</strong> </td>
+            <td>$46.66</td>
+            <td>$42.74</td>
+            <td>8.39%</td>
+            <td>1.27%</td>
+            <td>1.0%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-minimal"><strong>20.7</strong></td>
+            <td>0.22</td>
+        </tr>
+        
+        <tr>
+            <td><strong>EWI</strong> </td>
+            <td>$57.25</td>
+            <td>$51.39</td>
+            <td>10.24%</td>
+            <td>1.53%</td>
+            <td>1.0%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-minimal"><strong>19.6</strong></td>
+            <td>0.21</td>
+        </tr>
+        
+        <tr>
+            <td><strong>EWJ</strong> </td>
+            <td>$90.57</td>
+            <td>$81.25</td>
+            <td>10.28%</td>
+            <td>2.00%</td>
+            <td>1.7%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>38.1</strong></td>
+            <td>0.67</td>
+        </tr>
+        
+        <tr>
+            <td><strong>MCHI</strong> </td>
+            <td>$61.87</td>
+            <td>$57.31</td>
+            <td>7.38%</td>
+            <td>1.59%</td>
+            <td>1.7%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>44.4</strong></td>
+            <td>0.78</td>
+        </tr>
+        
+        <tr>
+            <td><strong>XLV</strong> </td>
+            <td>$156.73</td>
+            <td>$146.99</td>
+            <td>6.21%</td>
+            <td>1.49%</td>
+            <td>1.2%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>49.9</strong></td>
+            <td>0.60</td>
+        </tr>
+        
+        <tr>
+            <td><strong>XLI</strong> </td>
+            <td>$172.86</td>
+            <td>$157.13</td>
+            <td>9.10%</td>
+            <td>1.85%</td>
+            <td>1.2%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>40.8</strong></td>
+            <td>0.49</td>
+        </tr>
+        
+        <tr>
+            <td><strong>SMH</strong> </td>
+            <td>$404.27</td>
+            <td>$339.56</td>
+            <td>16.00%</td>
+            <td>3.33%</td>
+            <td>1.8%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>42.3</strong></td>
+            <td>0.76</td>
+        </tr>
+        
+        <tr>
+            <td><strong>PAVE</strong> </td>
+            <td>$54.55</td>
+            <td>$45.81</td>
+            <td>16.02%</td>
+            <td>2.63%</td>
+            <td>1.2%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>26.9</strong></td>
+            <td>0.32</td>
+        </tr>
+        
+        <tr>
+            <td><strong>AIQ</strong> </td>
+            <td>$50.24</td>
+            <td>$44.40</td>
+            <td>11.63%</td>
+            <td>2.70%</td>
+            <td>1.2%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>48.3</strong></td>
+            <td>0.58</td>
+        </tr>
+        
+        <tr>
+            <td><strong>GLD</strong> </td>
+            <td>$463.23</td>
+            <td>$379.97</td>
+            <td>17.97%</td>
+            <td>3.35%</td>
+            <td>3.0%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>35.5</strong></td>
+            <td>1.07</td>
+        </tr>
+        
+        <tr>
+            <td><strong>FTLS</strong> </td>
+            <td>$71.40</td>
+            <td>$68.39</td>
+            <td>4.22%</td>
+            <td>0.82%</td>
+            <td>3.0%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-low"><strong>38.2</strong></td>
+            <td>1.15</td>
+        </tr>
+        
+        <tr>
+            <td><strong>QAI</strong> </td>
+            <td>$34.56</td>
+            <td>$32.67</td>
+            <td>5.49%</td>
+            <td>0.66%</td>
+            <td>3.0%</td>
+            <td class="risk-minimal"><strong>0.0</strong></td>
+            <td>0.00</td>
+            <td class="risk-minimal"><strong>0.4</strong></td>
+            <td>0.01</td>
+        </tr>
+        
+            </tbody>
+        </table>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #c0392b;"></div>
+                <span>Critical (90-100)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #e74c3c;"></div>
+                <span>High (75-89)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #f39c12;"></div>
+                <span>Moderate (50-74)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #27ae60;"></div>
+                <span>Low (25-49)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #16a085;"></div>
+                <span>Minimal (0-24)</span>
+            </div>
+        </div>
+    </div>
+    
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 SATID Investment Management. All rights reserved.</p>
+    </footer>
+</body>
+</html>

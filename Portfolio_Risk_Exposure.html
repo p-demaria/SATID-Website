@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATID - Portfolio Risk Exposure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+/* SATID Master Stylesheet - Embedded */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    color: #2c3e50;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.navbar {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-container {
+    max-width: 100% !important;
+    padding: 0 40px !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    justify-content: space-between !important;
+    width: 100% !important;
+}
+
+.nav-menu li {
+    list-style: none;
+}
+
+.nav-menu a {
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 20px 0;
+    display: block;
+    transition: color 0.3s;
+    font-size: 17px;
+    font-weight: 400;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+    color: #3498db;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropbtn {
+    cursor: pointer;
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 20px 0;
+    display: block;
+    transition: color 0.3s;
+    font-size: 17px;
+    font-weight: 400;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #34495e;
+    min-width: 250px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+    z-index: 1000;
+    top: 100%;
+    left: 0;
+}
+
+/* Right-align the last dropdown to prevent overflow */
+.nav-menu li.dropdown:last-of-type .dropdown-content {
+    left: auto;
+    right: 0;
+}
+
+.dropdown-content a {
+    color: #ecf0f1;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border-bottom: 1px solid #2c3e50;
+}
+
+.dropdown-content a:hover {
+    background-color: #2c3e50;
+    color: #3498db;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    color: #3498db;
+}
+
+.hero {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3d6cb9 100%);
+    padding: 40px 20px 80px;
+    position: relative;
+    overflow: hidden;
+    color: white;
+    text-align: center;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" fill="rgba(255,255,255,0.03)"/></svg>') repeat;
+    opacity: 0.5;
+}
+
+.hero-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.hero-subtitle {
+    font-size: 1.6rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    max-width: 100% !important;
+    margin: -60px auto 60px;
+    padding: 0 10px !important;
+    position: relative;
+    z-index: 2;
+}
+
+.wide-content-page {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+    padding: 50px 30px 70px 30px !important;
+    animation: fadeIn 1s ease-out;
+    max-width: 1020px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+footer {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 80px;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* Risk Exposure Specific Styles */
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.summary-table thead tr {
+    background: linear-gradient(135deg, #2a5298 0%, #3d6cb9 100%);
+}
+
+.summary-table th {
+    color: white;
+    padding: 14px 12px;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.summary-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.95rem;
+}
+
+.class-total-row {
+    background: linear-gradient(135deg, #2a5298 0%, #3d6cb9 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.portfolio-total-row {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.summary-warning-row,
+.summary-danger-row {
+    background: white;
+}
+
+.label {
+    padding-left: 30px;
+    font-style: italic;
+    color: #4a5568;
+}
+
+.value {
+    text-align: right;
+}
+
+.warning-value,
+.danger-value {
+    text-align: right;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.breakdown-button {
+    display: block;
+    width: 320px;
+    margin: 30px auto;
+    padding: 16px 28px;
+    background: linear-gradient(135deg, #2a5298 0%, #3d6cb9 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(42, 82, 152, 0.3);
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.breakdown-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(42, 82, 152, 0.4);
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+}
+
+.breakdown-details {
+    display: none;
+    margin-top: 30px;
+}
+
+.breakdown-details.visible {
+    display: block;
+}
+
+.breakdown-section {
+    background-color: #f8f9fa;
+    padding: 25px;
+    margin-bottom: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.breakdown-section h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #1e3c72;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-bottom: 3px solid #2a5298;
+    padding-bottom: 12px;
+}
+
+.breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.breakdown-table thead tr {
+    background: linear-gradient(135deg, #2a5298 0%, #3d6cb9 100%);
+}
+
+.breakdown-table th {
+    color: white;
+    padding: 12px 8px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.breakdown-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.breakdown-table tbody tr:hover {
+    background-color: #f0f4f8;
+}
+
+.ticker {
+    font-weight: 700;
+    color: #1e3c72;
+}
+
+.breakdown-value-warning {
+    background: linear-gradient(135deg, #f39c12 0%, #f5a623 100%);
+    color: white;
+    font-weight: 700;
+    padding: 8px 12px;
+    text-align: center;
+    border-radius: 6px;
+    display: inline-block;
+    min-width: 90px;
+    box-shadow: 0 2px 6px rgba(243, 156, 18, 0.3);
+}
+
+.breakdown-value-danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #ec7063 100%);
+    color: white;
+    font-weight: 700;
+    padding: 8px 12px;
+    text-align: center;
+    border-radius: 6px;
+    display: inline-block;
+    min-width: 90px;
+    box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
+}
+
+.breakdown-value-safe {
+    color: #27ae60;
+    padding: 8px 12px;
+    text-align: center;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .wide-content-page {
+        padding: 30px 20px !important;
+    }
+    
+    .breakdown-button {
+        width: 100%;
+    }
+    
+    .nav-menu {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .dropdown-content {
+        position: static;
+        box-shadow: none;
+        background-color: #2c3e50;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="index.html">Index</a></li>
+                <li><a href="Philosophy.html">Philosophy</a></li>
+                <li><a href="Methodology.html">Methodology</a></li>
+                <li><a href="Support_Levels_Interactive.html">Risk Level Setting</a></li>
+                <li><a href="Portfolio_Risk_Exposure.html" class="active">Risk Exposure</a></li>
+                <li><a href="SATID_Risk_Score.html">Risk Score</a></li>
+                <li><a href="Portfolio_Risk_Dashboard.html">Risk Dashboard</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Market Views</a>
+                    <div class="dropdown-content">
+                        <a href="Market_Views.html">About Market Views</a>
+                        <a href="SATID_Relative_Performance.html">Cross Asset Validations</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Appendix</a>
+                    <div class="dropdown-content">
+                        <a href="portfolio_dashboard.html">Portfolios Profile Snapshot</a>
+                        <a href="model_portfolios.html">Model Portfolios</a>
+                        <a href="portfolio_statistics_monthly.html">Portfolio Statistics</a>
+                        <a href="generate_annual_returns_chart.html">Annual Returns</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Portfolio Risk Exposure</h1>
+            <p class="hero-subtitle">Distance to Fbis support levels by asset class</p>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <div class="container">
+        <div class="wide-content-page">
+            
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Asset Class</th>
+                    <th style="width: 15%; text-align: right;">Allocation</th>
+                    <th style="width: 20%; text-align: right;">Amount</th>
+                    <th style="width: 35%; text-align: right;">USD to Support</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr class="class-total-row">
+                    <td><strong>Cash</strong></td>
+                    <td style="text-align: right;"><strong>3.0%</strong></td>
+                    <td style="text-align: right;"><strong>$300,000</strong></td>
+                    <td style="text-align: right;"><strong>$-5,866</strong></td>
+                </tr>
+                <tr class="summary-warning-row">
+                    <td class="label">Warning</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="warning-value">$-5,866</td>
+                </tr>
+                <tr class="summary-danger-row">
+                    <td class="label">Danger</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="danger-value">$0</td>
+                </tr>
+
+                <tr class="class-total-row">
+                    <td><strong>Fixed Income</strong></td>
+                    <td style="text-align: right;"><strong>30.0%</strong></td>
+                    <td style="text-align: right;"><strong>$3,000,000</strong></td>
+                    <td style="text-align: right;"><strong>$-44,800</strong></td>
+                </tr>
+                <tr class="summary-warning-row">
+                    <td class="label">Warning</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="warning-value">$-30,449</td>
+                </tr>
+                <tr class="summary-danger-row">
+                    <td class="label">Danger</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="danger-value">$0</td>
+                </tr>
+
+                <tr class="class-total-row">
+                    <td><strong>Core Equity</strong></td>
+                    <td style="text-align: right;"><strong>35.0%</strong></td>
+                    <td style="text-align: right;"><strong>$3,500,000</strong></td>
+                    <td style="text-align: right;"><strong>$-216,618</strong></td>
+                </tr>
+                <tr class="summary-warning-row">
+                    <td class="label">Warning</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="warning-value">$0</td>
+                </tr>
+                <tr class="summary-danger-row">
+                    <td class="label">Danger</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="danger-value">$0</td>
+                </tr>
+
+                <tr class="class-total-row">
+                    <td><strong>Sector & Thematic</strong></td>
+                    <td style="text-align: right;"><strong>12.0%</strong></td>
+                    <td style="text-align: right;"><strong>$1,200,000</strong></td>
+                    <td style="text-align: right;"><strong>$-76,004</strong></td>
+                </tr>
+                <tr class="summary-warning-row">
+                    <td class="label">Warning</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="warning-value">$-5,051</td>
+                </tr>
+                <tr class="summary-danger-row">
+                    <td class="label">Danger</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="danger-value">$8,499</td>
+                </tr>
+
+                <tr class="class-total-row">
+                    <td><strong>Secular Growth</strong></td>
+                    <td style="text-align: right;"><strong>8.0%</strong></td>
+                    <td style="text-align: right;"><strong>$800,000</strong></td>
+                    <td style="text-align: right;"><strong>$-34,750</strong></td>
+                </tr>
+                <tr class="summary-warning-row">
+                    <td class="label">Warning</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="warning-value">$-2,636</td>
+                </tr>
+                <tr class="summary-danger-row">
+                    <td class="label">Danger</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="danger-value">$9,977</td>
+                </tr>
+
+                <tr class="class-total-row">
+                    <td><strong>Alternative Investments</strong></td>
+                    <td style="text-align: right;"><strong>12.0%</strong></td>
+                    <td style="text-align: right;"><strong>$1,200,000</strong></td>
+                    <td style="text-align: right;"><strong>$-97,702</strong></td>
+                </tr>
+                <tr class="summary-warning-row">
+                    <td class="label">Warning</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="warning-value">$0</td>
+                </tr>
+                <tr class="summary-danger-row">
+                    <td class="label">Danger</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="danger-value">$0</td>
+                </tr>
+
+                <tr class="portfolio-total-row">
+                    <td>Portfolio Total</td>
+                    <td style="text-align: right;">100.0%</td>
+                    <td style="text-align: right;">$10,000,000</td>
+                    <td style="text-align: right;">$-475,739</td>
+                </tr>
+                <tr class="summary-warning-row">
+                    <td class="label">Total Warning</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="warning-value">$-44,002</td>
+                </tr>
+                <tr class="summary-danger-row">
+                    <td class="label">Total Danger</td>
+                    <td class="value"></td>
+                    <td class="value"></td>
+                    <td class="danger-value">$18,476</td>
+                </tr>
+            </tbody>
+        </table>
+
+            
+            <button class="breakdown-button" onclick="toggleBreakdown()">Show Portfolio Breakdown</button>
+            
+            <div id="breakdown" class="breakdown-details">
+                
+        <div class="breakdown-section">
+            <h3>Cash</h3>
+            <table class="breakdown-table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Allocation</th>
+                        <th>Amount</th>
+                        <th>Last Price</th>
+                        <th>Fbis Support</th>
+                        <th>Distance</th>
+                        <th>USD to Support</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="ticker"><strong>BIL</strong></td>
+                        <td>3.0%</td>
+                        <td>$300,000</td>
+                        <td>$91.44</td>
+                        <td>$89.66</td>
+                        <td>-1.96%</td>
+                        <td><span class="breakdown-value-warning">$-5,866</span></td>
+                    </tr>
+
+                    <tr class="class-summary-warning">
+                        <td style="text-align: left; font-weight: bold;">Warning Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-warning">$-5,866</span></td>
+                    </tr>
+                    <tr class="class-summary-danger">
+                        <td style="text-align: left; font-weight: bold;">Danger Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-danger">$0</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="breakdown-section">
+            <h3>Fixed Income</h3>
+            <table class="breakdown-table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Allocation</th>
+                        <th>Amount</th>
+                        <th>Last Price</th>
+                        <th>Fbis Support</th>
+                        <th>Distance</th>
+                        <th>USD to Support</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="ticker"><strong>LQD</strong></td>
+                        <td>6.0%</td>
+                        <td>$600,000</td>
+                        <td>$110.35</td>
+                        <td>$107.71</td>
+                        <td>-2.39%</td>
+                        <td><span class="breakdown-value-safe">$-14,350</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>IGIB</strong></td>
+                        <td>1.5%</td>
+                        <td>$150,000</td>
+                        <td>$53.90</td>
+                        <td>$53.03</td>
+                        <td>-1.62%</td>
+                        <td><span class="breakdown-value-warning">$-2,423</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>HYS</strong></td>
+                        <td>10.5%</td>
+                        <td>$1,050,000</td>
+                        <td>$94.67</td>
+                        <td>$93.44</td>
+                        <td>-1.30%</td>
+                        <td><span class="breakdown-value-warning">$-13,625</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>CEMB</strong></td>
+                        <td>4.5%</td>
+                        <td>$450,000</td>
+                        <td>$46.01</td>
+                        <td>$45.43</td>
+                        <td>-1.27%</td>
+                        <td><span class="breakdown-value-warning">$-5,697</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>IGSB</strong></td>
+                        <td>1.5%</td>
+                        <td>$150,000</td>
+                        <td>$52.98</td>
+                        <td>$52.34</td>
+                        <td>-1.20%</td>
+                        <td><span class="breakdown-value-warning">$-1,806</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>EMB</strong></td>
+                        <td>6.0%</td>
+                        <td>$600,000</td>
+                        <td>$96.61</td>
+                        <td>$95.50</td>
+                        <td>-1.15%</td>
+                        <td><span class="breakdown-value-warning">$-6,898</span></td>
+                    </tr>
+
+                    <tr class="class-summary-warning">
+                        <td style="text-align: left; font-weight: bold;">Warning Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-warning">$-30,449</span></td>
+                    </tr>
+                    <tr class="class-summary-danger">
+                        <td style="text-align: left; font-weight: bold;">Danger Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-danger">$0</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="breakdown-section">
+            <h3>Core Equity</h3>
+            <table class="breakdown-table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Allocation</th>
+                        <th>Amount</th>
+                        <th>Last Price</th>
+                        <th>Fbis Support</th>
+                        <th>Distance</th>
+                        <th>USD to Support</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="ticker"><strong>EWZ</strong></td>
+                        <td>1.7%</td>
+                        <td>$175,000</td>
+                        <td>$37.96</td>
+                        <td>$32.43</td>
+                        <td>-14.56%</td>
+                        <td><span class="breakdown-value-safe">$-25,481</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>EWJ</strong></td>
+                        <td>1.7%</td>
+                        <td>$175,000</td>
+                        <td>$90.57</td>
+                        <td>$81.25</td>
+                        <td>-10.28%</td>
+                        <td><span class="breakdown-value-safe">$-17,999</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>EWI</strong></td>
+                        <td>1.0%</td>
+                        <td>$105,000</td>
+                        <td>$57.25</td>
+                        <td>$51.39</td>
+                        <td>-10.24%</td>
+                        <td><span class="breakdown-value-safe">$-10,751</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>VGK</strong></td>
+                        <td>3.5%</td>
+                        <td>$350,000</td>
+                        <td>$88.89</td>
+                        <td>$80.53</td>
+                        <td>-9.41%</td>
+                        <td><span class="breakdown-value-safe">$-32,920</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>EWQ</strong></td>
+                        <td>1.0%</td>
+                        <td>$105,000</td>
+                        <td>$46.66</td>
+                        <td>$42.74</td>
+                        <td>-8.39%</td>
+                        <td><span class="breakdown-value-safe">$-8,815</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>MCHI</strong></td>
+                        <td>1.7%</td>
+                        <td>$175,000</td>
+                        <td>$61.87</td>
+                        <td>$57.31</td>
+                        <td>-7.38%</td>
+                        <td><span class="breakdown-value-safe">$-12,907</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>INDA</strong></td>
+                        <td>1.7%</td>
+                        <td>$175,000</td>
+                        <td>$53.43</td>
+                        <td>$50.07</td>
+                        <td>-6.29%</td>
+                        <td><span class="breakdown-value-safe">$-11,001</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>EWG</strong></td>
+                        <td>1.4%</td>
+                        <td>$140,000</td>
+                        <td>$43.99</td>
+                        <td>$41.63</td>
+                        <td>-5.38%</td>
+                        <td><span class="breakdown-value-safe">$-7,532</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>QQQ</strong></td>
+                        <td>3.5%</td>
+                        <td>$350,000</td>
+                        <td>$609.49</td>
+                        <td>$582.12</td>
+                        <td>-4.49%</td>
+                        <td><span class="breakdown-value-safe">$-15,719</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>SPY</strong></td>
+                        <td>17.5%</td>
+                        <td>$1,750,000</td>
+                        <td>$690.64</td>
+                        <td>$661.63</td>
+                        <td>-4.20%</td>
+                        <td><span class="breakdown-value-safe">$-73,494</span></td>
+                    </tr>
+
+                    <tr class="class-summary-warning">
+                        <td style="text-align: left; font-weight: bold;">Warning Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-warning">$0</span></td>
+                    </tr>
+                    <tr class="class-summary-danger">
+                        <td style="text-align: left; font-weight: bold;">Danger Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-danger">$0</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="breakdown-section">
+            <h3>Sector & Thematic</h3>
+            <table class="breakdown-table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Allocation</th>
+                        <th>Amount</th>
+                        <th>Last Price</th>
+                        <th>Fbis Support</th>
+                        <th>Distance</th>
+                        <th>USD to Support</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="ticker"><strong>PAVE</strong></td>
+                        <td>1.2%</td>
+                        <td>$120,000</td>
+                        <td>$54.55</td>
+                        <td>$45.81</td>
+                        <td>-16.02%</td>
+                        <td><span class="breakdown-value-safe">$-19,225</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>SMH</strong></td>
+                        <td>1.8%</td>
+                        <td>$180,000</td>
+                        <td>$404.27</td>
+                        <td>$339.56</td>
+                        <td>-16.00%</td>
+                        <td><span class="breakdown-value-safe">$-28,808</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>PPA</strong></td>
+                        <td>1.2%</td>
+                        <td>$120,000</td>
+                        <td>$176.51</td>
+                        <td>$157.32</td>
+                        <td>-10.87%</td>
+                        <td><span class="breakdown-value-safe">$-13,045</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>XLI</strong></td>
+                        <td>1.2%</td>
+                        <td>$120,000</td>
+                        <td>$172.86</td>
+                        <td>$157.13</td>
+                        <td>-9.10%</td>
+                        <td><span class="breakdown-value-safe">$-10,919</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>XLV</strong></td>
+                        <td>1.2%</td>
+                        <td>$120,000</td>
+                        <td>$156.73</td>
+                        <td>$146.99</td>
+                        <td>-6.21%</td>
+                        <td><span class="breakdown-value-safe">$-7,454</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>XLC</strong></td>
+                        <td>1.2%</td>
+                        <td>$120,000</td>
+                        <td>$115.43</td>
+                        <td>$113.04</td>
+                        <td>-2.07%</td>
+                        <td><span class="breakdown-value-warning">$-2,483</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>XLK</strong></td>
+                        <td>1.8%</td>
+                        <td>$180,000</td>
+                        <td>$142.08</td>
+                        <td>$140.05</td>
+                        <td>-1.43%</td>
+                        <td><span class="breakdown-value-warning">$-2,568</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>XLY</strong></td>
+                        <td>1.2%</td>
+                        <td>$120,000</td>
+                        <td>$116.55</td>
+                        <td>$116.82</td>
+                        <td>0.23%</td>
+                        <td><span class="breakdown-value-danger">$278</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>HEAL</strong></td>
+                        <td>1.2%</td>
+                        <td>$120,000</td>
+                        <td>$26.15</td>
+                        <td>$27.94</td>
+                        <td>6.85%</td>
+                        <td><span class="breakdown-value-danger">$8,221</span></td>
+                    </tr>
+
+                    <tr class="class-summary-warning">
+                        <td style="text-align: left; font-weight: bold;">Warning Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-warning">$-5,051</span></td>
+                    </tr>
+                    <tr class="class-summary-danger">
+                        <td style="text-align: left; font-weight: bold;">Danger Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-danger">$8,499</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="breakdown-section">
+            <h3>Secular Growth</h3>
+            <table class="breakdown-table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Allocation</th>
+                        <th>Amount</th>
+                        <th>Last Price</th>
+                        <th>Fbis Support</th>
+                        <th>Distance</th>
+                        <th>USD to Support</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="ticker"><strong>QTUM</strong></td>
+                        <td>1.6%</td>
+                        <td>$160,000</td>
+                        <td>$116.70</td>
+                        <td>$102.95</td>
+                        <td>-11.79%</td>
+                        <td><span class="breakdown-value-safe">$-18,857</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>AIQ</strong></td>
+                        <td>1.2%</td>
+                        <td>$120,000</td>
+                        <td>$50.24</td>
+                        <td>$44.40</td>
+                        <td>-11.63%</td>
+                        <td><span class="breakdown-value-safe">$-13,952</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>ARKX</strong></td>
+                        <td>0.8%</td>
+                        <td>$80,000</td>
+                        <td>$32.03</td>
+                        <td>$28.31</td>
+                        <td>-11.60%</td>
+                        <td><span class="breakdown-value-safe">$-9,281</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>EBIZ</strong></td>
+                        <td>1.2%</td>
+                        <td>$120,000</td>
+                        <td>$30.20</td>
+                        <td>$29.74</td>
+                        <td>-1.51%</td>
+                        <td><span class="breakdown-value-warning">$-1,816</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>BKCH</strong></td>
+                        <td>1.2%</td>
+                        <td>$120,000</td>
+                        <td>$65.00</td>
+                        <td>$64.56</td>
+                        <td>-0.68%</td>
+                        <td><span class="breakdown-value-warning">$-820</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>ESPO</strong></td>
+                        <td>0.8%</td>
+                        <td>$80,000</td>
+                        <td>$95.98</td>
+                        <td>$99.36</td>
+                        <td>3.52%</td>
+                        <td><span class="breakdown-value-danger">$2,820</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>ARKF</strong></td>
+                        <td>1.2%</td>
+                        <td>$120,000</td>
+                        <td>$39.31</td>
+                        <td>$41.65</td>
+                        <td>5.96%</td>
+                        <td><span class="breakdown-value-danger">$7,157</span></td>
+                    </tr>
+
+                    <tr class="class-summary-warning">
+                        <td style="text-align: left; font-weight: bold;">Warning Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-warning">$-2,636</span></td>
+                    </tr>
+                    <tr class="class-summary-danger">
+                        <td style="text-align: left; font-weight: bold;">Danger Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-danger">$9,977</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="breakdown-section">
+            <h3>Alternative Investments</h3>
+            <table class="breakdown-table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Allocation</th>
+                        <th>Amount</th>
+                        <th>Last Price</th>
+                        <th>Fbis Support</th>
+                        <th>Distance</th>
+                        <th>USD to Support</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="ticker"><strong>GLD</strong></td>
+                        <td>3.0%</td>
+                        <td>$300,000</td>
+                        <td>$463.23</td>
+                        <td>$379.97</td>
+                        <td>-17.97%</td>
+                        <td><span class="breakdown-value-safe">$-53,920</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>QAI</strong></td>
+                        <td>3.0%</td>
+                        <td>$300,000</td>
+                        <td>$34.56</td>
+                        <td>$32.67</td>
+                        <td>-5.49%</td>
+                        <td><span class="breakdown-value-safe">$-16,469</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>WTMF</strong></td>
+                        <td>3.0%</td>
+                        <td>$300,000</td>
+                        <td>$38.56</td>
+                        <td>$36.68</td>
+                        <td>-4.88%</td>
+                        <td><span class="breakdown-value-safe">$-14,639</span></td>
+                    </tr>
+
+                    <tr>
+                        <td class="ticker"><strong>FTLS</strong></td>
+                        <td>3.0%</td>
+                        <td>$300,000</td>
+                        <td>$71.40</td>
+                        <td>$68.39</td>
+                        <td>-4.22%</td>
+                        <td><span class="breakdown-value-safe">$-12,674</span></td>
+                    </tr>
+
+                    <tr class="class-summary-warning">
+                        <td style="text-align: left; font-weight: bold;">Warning Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-warning">$0</span></td>
+                    </tr>
+                    <tr class="class-summary-danger">
+                        <td style="text-align: left; font-weight: bold;">Danger Total</td>
+                        <td colspan="5"></td>
+                        <td><span class="class-summary-value-danger">$0</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 SATID Investment Management. All rights reserved.</p>
+    </footer>
+    
+    <script>
+        function toggleBreakdown() {
+            var breakdown = document.getElementById('breakdown');
+            var button = document.querySelector('.breakdown-button');
+            if (breakdown.classList.contains('visible')) {
+                breakdown.classList.remove('visible');
+                button.textContent = 'Show Portfolio Breakdown';
+            } else {
+                breakdown.classList.add('visible');
+                button.textContent = 'Hide Portfolio Breakdown';
+            }
+        }
+    </script>
+</body>
+</html>

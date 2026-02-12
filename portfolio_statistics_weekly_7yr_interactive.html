@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Statistics Dashboard - Interactive</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            padding: 0 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        
+        .tab:hover {
+            background: #f8f9fa;
+        }
+        
+        .tab.active {
+            border-bottom-color: #2a5298;
+            color: #2a5298;
+        }
+        
+        .content {
+            padding: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 30px;
+        }
+        
+        .left-panel, .right-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .stat-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        
+        .stat-table th {
+            background: #1e3c72;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .stat-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .stat-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .metric-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            color: #2a5298;
+        }
+        
+        .positive {
+            color: #28a745;
+        }
+        
+        .negative {
+            color: #dc3545;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3c72;
+            margin: 25px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .date-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .date-control-row {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .date-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .date-input-group label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        .date-input-group input {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .date-input-group input:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .update-button {
+            flex: 1;
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .update-button:hover {
+            background: #1e3c72;
+        }
+        
+        .reset-button {
+            flex: 1;
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .reset-button:hover {
+            background: #5a6268;
+        }
+        
+        .update-button:active, .reset-button:active {
+            transform: scale(0.98);
+        }
+        
+        /* Portfolio Description Styles */
+        .portfolio-description {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .description-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .description-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        .asset-class-card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .asset-class-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .asset-class-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        .asset-class-body {
+            padding: 20px;
+            background: white;
+        }
+        
+        .holding-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            align-items: center;
+        }
+        
+        .holding-item:last-child {
+            border-bottom: none;
+        }
+        
+        .holding-name {
+            color: #495057;
+        }
+        
+        .holding-ticker {
+            text-align: center;
+            font-weight: 600;
+            color: #2a5298;
+        }
+        
+        .holding-allocation {
+            text-align: right;
+            font-weight: 600;
+            color: #1e3c72;
+        }
+        
+        /* Back Button */
+        .back-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #2c5f2d 0%, #4a7c59 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(44, 95, 45, 0.3);
+            margin: 20px 30px;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(44, 95, 45, 0.4);
+            background: linear-gradient(135deg, #4a7c59 0%, #5d9973 100%);
+        }
+        
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .description-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Portfolio Statistics Dashboard</h1>
+        <p>Interactive 5-Year Weekly Data Analysis</p>
+    </div>
+    
+    <a href="Portfolio_Risk_Dashboard.html" class="back-button">← Back</a>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('statistics')">Statistics</div>
+        <div class="tab" onclick="switchTab('description')">Portfolio Description</div>
+    </div>
+    
+    <div class="content">
+        <div id="statisticsTab" class="tab-content active">
+            <div class="dashboard">
+                <div class="left-panel">
+                    <div class="section-title">Date Range Selection</div>
+                    <div class="date-controls">
+                        <div class="date-control-row">
+                            <div class="date-input-group">
+                                <label for="startDate">Start Date:</label>
+                                <input type="date" id="startDate" min="2019-03-01" max="2026-02-13" value="2019-03-01">
+                            </div>
+                            <div class="date-input-group">
+                                <label for="endDate">End Date:</label>
+                                <input type="date" id="endDate" min="2019-03-01" max="2026-02-13" value="2026-02-13">
+                            </div>
+                            <div class="button-group">
+                                <button class="update-button" onclick="updateDashboard()">Update Analysis</button>
+                                <button class="reset-button" onclick="resetDates()">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-title">Portfolio Returns</div>
+                    <table class="stat-table">
+                        <thead>
+                            <tr>
+                                <th>Period</th>
+                                <th>Return</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnsTable">
+                            <tr>
+                                <td id="period1yLabel">1 Year</td>
+                                <td id="return1y">-</td>
+                            </tr>
+                            <tr>
+                                <td id="period3yLabel">3 Year</td>
+                                <td id="return3y">-</td>
+                            </tr>
+                            <tr>
+                                <td id="period5yLabel">5 Year</td>
+                                <td id="return5y">-</td>
+                            </tr>
+                            <tr>
+                                <td id="periodMaxLabel">Full Period</td>
+                                <td id="returnMax">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="metric-box">
+                        <div class="metric-row">
+                            <span class="metric-label">Volatility</span>
+                            <span class="metric-value" id="volatility">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Max Drawdown</span>
+                            <span class="metric-value" id="maxDrawdown">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Drawdown Date</span>
+                            <span class="metric-value" id="drawdownDate">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Time to Recovery</span>
+                            <span class="metric-value" id="timeToRecovery">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Max 1 Yr Return</span>
+                            <span class="metric-value" id="maxReturn">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Return Date</span>
+                            <span class="metric-value" id="maxReturnDate">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Min 1 Yr Return</span>
+                            <span class="metric-value" id="minReturn">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Return Date</span>
+                            <span class="metric-value" id="minReturnDate">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="right-panel">
+                    <div class="section-title">Asset Allocation</div>
+                    <div class="chart-container">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                    
+                    <div class="section-title">Portfolio Growth (Base 10,000)</div>
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="navChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="descriptionTab" class="tab-content">
+            <div class="portfolio-description">
+  <h2 class="description-title">Model Portfolio Composition</h2>
+  <div class="description-grid">
+    <div class="asset-class-card">
+      <div class="asset-class-header" style="background: #95a5a6;">
+        <strong>Cash</strong>
+        <strong>3.0%</strong>
+      </div>
+      <div class="asset-class-body">
+        <div class="holding-item">
+          <span class="holding-name">1 to 3 month T-Bills</span>
+          <span class="holding-ticker">BIL</span>
+          <span class="holding-allocation">3.00%</span>
+        </div>
+      </div>
+    </div>
+    <div class="asset-class-card">
+      <div class="asset-class-header" style="background: #3498db;">
+        <strong>Fixed Income</strong>
+        <strong>30.0%</strong>
+      </div>
+      <div class="asset-class-body">
+        <div class="holding-item">
+          <span class="holding-name">Investment Grade 1 to 5 Years</span>
+          <span class="holding-ticker">IGSB</span>
+          <span class="holding-allocation">1.50%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Investment Grade 5 to 10 Years</span>
+          <span class="holding-ticker">IGIB</span>
+          <span class="holding-allocation">1.50%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Investment Grade Bonds</span>
+          <span class="holding-ticker">LQD</span>
+          <span class="holding-allocation">6.00%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">High Yield Bonds 0 to 5 Years</span>
+          <span class="holding-ticker">HYS</span>
+          <span class="holding-allocation">10.50%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Emerging Market Bonds</span>
+          <span class="holding-ticker">EMB</span>
+          <span class="holding-allocation">6.00%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Corporate Emerging Markets</span>
+          <span class="holding-ticker">CEMB</span>
+          <span class="holding-allocation">4.50%</span>
+        </div>
+      </div>
+    </div>
+    <div class="asset-class-card">
+      <div class="asset-class-header" style="background: #e74c3c;">
+        <strong>Core Equity</strong>
+        <strong>35.0%</strong>
+      </div>
+      <div class="asset-class-body">
+        <div class="holding-item">
+          <span class="holding-name">US Equity Core</span>
+          <span class="holding-ticker">SPY</span>
+          <span class="holding-allocation">17.50%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Nasdaq</span>
+          <span class="holding-ticker">QQQ</span>
+          <span class="holding-allocation">3.50%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">European Equity</span>
+          <span class="holding-ticker">VGK</span>
+          <span class="holding-allocation">3.50%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Germany</span>
+          <span class="holding-ticker">EWG</span>
+          <span class="holding-allocation">1.40%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">France</span>
+          <span class="holding-ticker">EWQ</span>
+          <span class="holding-allocation">1.05%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Italy</span>
+          <span class="holding-ticker">EWI</span>
+          <span class="holding-allocation">1.05%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Japan</span>
+          <span class="holding-ticker">EWJ</span>
+          <span class="holding-allocation">1.75%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Brazil</span>
+          <span class="holding-ticker">EWZ</span>
+          <span class="holding-allocation">1.75%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">India</span>
+          <span class="holding-ticker">INDA</span>
+          <span class="holding-allocation">1.75%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">China</span>
+          <span class="holding-ticker">MCHI</span>
+          <span class="holding-allocation">1.75%</span>
+        </div>
+      </div>
+    </div>
+    <div class="asset-class-card">
+      <div class="asset-class-header" style="background: #f39c12;">
+        <strong>Sector & Thematic - Sectoral</strong>
+        <strong>8.4%</strong>
+      </div>
+      <div class="asset-class-body">
+        <div class="holding-item">
+          <span class="holding-name">Technology</span>
+          <span class="holding-ticker">XLK</span>
+          <span class="holding-allocation">1.26%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Consumer Discretionary</span>
+          <span class="holding-ticker">XLY</span>
+          <span class="holding-allocation">0.84%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Healthcare</span>
+          <span class="holding-ticker">XLV</span>
+          <span class="holding-allocation">0.84%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Industrials</span>
+          <span class="holding-ticker">XLI</span>
+          <span class="holding-allocation">0.84%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Communication Services</span>
+          <span class="holding-ticker">XLC</span>
+          <span class="holding-allocation">0.84%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Semiconductors</span>
+          <span class="holding-ticker">SMH</span>
+          <span class="holding-allocation">1.26%</span>
+        </div>
+      </div>
+    </div>
+    <div class="asset-class-card">
+      <div class="asset-class-header" style="background: #e67e22;">
+        <strong>Sector & Thematic - Thematic</strong>
+        <strong>3.6%</strong>
+      </div>
+      <div class="asset-class-body">
+        <div class="holding-item">
+          <span class="holding-name">Healthcare Innovation</span>
+          <span class="holding-ticker">HEAL</span>
+          <span class="holding-allocation">0.36%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Aerospace & Defense</span>
+          <span class="holding-ticker">PPA</span>
+          <span class="holding-allocation">0.36%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Infrastructure</span>
+          <span class="holding-ticker">PAVE</span>
+          <span class="holding-allocation">0.36%</span>
+        </div>
+      </div>
+    </div>
+    <div class="asset-class-card">
+      <div class="asset-class-header" style="background: #9b59b6;">
+        <strong>Secular Growth</strong>
+        <strong>8.0%</strong>
+      </div>
+      <div class="asset-class-body">
+        <div class="holding-item">
+          <span class="holding-name">Fintech Innovation</span>
+          <span class="holding-ticker">ARKF</span>
+          <span class="holding-allocation">1.20%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">AI & Robotics</span>
+          <span class="holding-ticker">AIQ</span>
+          <span class="holding-allocation">1.20%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">E-commerce</span>
+          <span class="holding-ticker">EBIZ</span>
+          <span class="holding-allocation">1.20%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Blockchain</span>
+          <span class="holding-ticker">BKCH</span>
+          <span class="holding-allocation">1.20%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Cloud Computing</span>
+          <span class="holding-ticker">QTUM</span>
+          <span class="holding-allocation">1.60%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Space Exploration</span>
+          <span class="holding-ticker">ARKX</span>
+          <span class="holding-allocation">0.80%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Video Gaming</span>
+          <span class="holding-ticker">ESPO</span>
+          <span class="holding-allocation">0.80%</span>
+        </div>
+      </div>
+    </div>
+    <div class="asset-class-card">
+      <div class="asset-class-header" style="background: #27ae60;">
+        <strong>Alternative Investments</strong>
+        <strong>12.0%</strong>
+      </div>
+      <div class="asset-class-body">
+        <div class="holding-item">
+          <span class="holding-name">Gold</span>
+          <span class="holding-ticker">GLD</span>
+          <span class="holding-allocation">3.00%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Managed Futures</span>
+          <span class="holding-ticker">FTLS</span>
+          <span class="holding-allocation">3.00%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Multi-Strategy</span>
+          <span class="holding-ticker">QAI</span>
+          <span class="holding-allocation">3.00%</span>
+        </div>
+        <div class="holding-item">
+          <span class="holding-name">Tactical Allocation</span>
+          <span class="holding-ticker">WTMF</span>
+          <span class="holding-allocation">3.00%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+        </div>
+    </div>
+    
+    <script>
+        // Global data
+        const allDates = ["2019-03-01", "2019-03-08", "2019-03-15", "2019-03-22", "2019-03-29", "2019-04-05", "2019-04-12", "2019-04-19", "2019-04-26", "2019-05-03", "2019-05-10", "2019-05-17", "2019-05-24", "2019-05-31", "2019-06-07", "2019-06-14", "2019-06-21", "2019-06-28", "2019-07-05", "2019-07-12", "2019-07-19", "2019-07-26", "2019-08-02", "2019-08-09", "2019-08-16", "2019-08-23", "2019-08-30", "2019-09-06", "2019-09-13", "2019-09-20", "2019-09-27", "2019-10-04", "2019-10-11", "2019-10-18", "2019-10-25", "2019-11-01", "2019-11-08", "2019-11-15", "2019-11-22", "2019-11-29", "2019-12-06", "2019-12-13", "2019-12-20", "2019-12-27", "2020-01-03", "2020-01-10", "2020-01-17", "2020-01-24", "2020-01-31", "2020-02-07", "2020-02-14", "2020-02-21", "2020-02-28", "2020-03-06", "2020-03-13", "2020-03-20", "2020-03-27", "2020-04-03", "2020-04-10", "2020-04-17", "2020-04-24", "2020-05-01", "2020-05-08", "2020-05-15", "2020-05-22", "2020-05-29", "2020-06-05", "2020-06-12", "2020-06-19", "2020-06-26", "2020-07-03", "2020-07-10", "2020-07-17", "2020-07-24", "2020-07-31", "2020-08-07", "2020-08-14", "2020-08-21", "2020-08-28", "2020-09-04", "2020-09-11", "2020-09-18", "2020-09-25", "2020-10-02", "2020-10-09", "2020-10-16", "2020-10-23", "2020-10-30", "2020-11-06", "2020-11-13", "2020-11-20", "2020-11-27", "2020-12-04", "2020-12-11", "2020-12-18", "2020-12-25", "2021-01-01", "2021-01-08", "2021-01-15", "2021-01-22", "2021-01-29", "2021-02-05", "2021-02-12", "2021-02-19", "2021-02-26", "2021-03-05", "2021-03-12", "2021-03-19", "2021-03-26", "2021-04-02", "2021-04-09", "2021-04-16", "2021-04-23", "2021-04-30", "2021-05-07", "2021-05-14", "2021-05-21", "2021-05-28", "2021-06-04", "2021-06-11", "2021-06-18", "2021-06-25", "2021-07-02", "2021-07-09", "2021-07-16", "2021-07-23", "2021-07-30", "2021-08-06", "2021-08-13", "2021-08-20", "2021-08-27", "2021-09-03", "2021-09-10", "2021-09-17", "2021-09-24", "2021-10-01", "2021-10-08", "2021-10-15", "2021-10-22", "2021-10-29", "2021-11-05", "2021-11-12", "2021-11-19", "2021-11-26", "2021-12-03", "2021-12-10", "2021-12-17", "2021-12-24", "2021-12-31", "2022-01-07", "2022-01-14", "2022-01-21", "2022-01-28", "2022-02-04", "2022-02-11", "2022-02-18", "2022-02-25", "2022-03-04", "2022-03-11", "2022-03-18", "2022-03-25", "2022-04-01", "2022-04-08", "2022-04-15", "2022-04-22", "2022-04-29", "2022-05-06", "2022-05-13", "2022-05-20", "2022-05-27", "2022-06-03", "2022-06-10", "2022-06-17", "2022-06-24", "2022-07-01", "2022-07-08", "2022-07-15", "2022-07-22", "2022-07-29", "2022-08-05", "2022-08-12", "2022-08-19", "2022-08-26", "2022-09-02", "2022-09-09", "2022-09-16", "2022-09-23", "2022-09-30", "2022-10-07", "2022-10-14", "2022-10-21", "2022-10-28", "2022-11-04", "2022-11-11", "2022-11-18", "2022-11-25", "2022-12-02", "2022-12-09", "2022-12-16", "2022-12-23", "2022-12-30", "2023-01-06", "2023-01-13", "2023-01-20", "2023-01-27", "2023-02-03", "2023-02-10", "2023-02-17", "2023-02-24", "2023-03-03", "2023-03-10", "2023-03-17", "2023-03-24", "2023-03-31", "2023-04-07", "2023-04-14", "2023-04-21", "2023-04-28", "2023-05-05", "2023-05-12", "2023-05-19", "2023-05-26", "2023-06-02", "2023-06-09", "2023-06-16", "2023-06-23", "2023-06-30", "2023-07-07", "2023-07-14", "2023-07-21", "2023-07-28", "2023-08-04", "2023-08-11", "2023-08-18", "2023-08-25", "2023-09-01", "2023-09-08", "2023-09-15", "2023-09-22", "2023-09-29", "2023-10-06", "2023-10-13", "2023-10-20", "2023-10-27", "2023-11-03", "2023-11-10", "2023-11-17", "2023-11-24", "2023-12-01", "2023-12-08", "2023-12-15", "2023-12-22", "2023-12-29", "2024-01-05", "2024-01-12", "2024-01-19", "2024-01-26", "2024-02-02", "2024-02-09", "2024-02-16", "2024-02-23", "2024-03-01", "2024-03-08", "2024-03-15", "2024-03-22", "2024-03-29", "2024-04-05", "2024-04-12", "2024-04-19", "2024-04-26", "2024-05-03", "2024-05-10", "2024-05-17", "2024-05-24", "2024-05-31", "2024-06-07", "2024-06-14", "2024-06-21", "2024-06-28", "2024-07-05", "2024-07-12", "2024-07-19", "2024-07-26", "2024-08-02", "2024-08-09", "2024-08-16", "2024-08-23", "2024-08-30", "2024-09-06", "2024-09-13", "2024-09-20", "2024-09-27", "2024-10-04", "2024-10-11", "2024-10-18", "2024-10-25", "2024-11-01", "2024-11-08", "2024-11-15", "2024-11-22", "2024-11-29", "2024-12-06", "2024-12-13", "2024-12-20", "2024-12-27", "2025-01-03", "2025-01-10", "2025-01-17", "2025-01-24", "2025-01-31", "2025-02-07", "2025-02-14", "2025-02-21", "2025-02-28", "2025-03-07", "2025-03-14", "2025-03-21", "2025-03-28", "2025-04-04", "2025-04-11", "2025-04-18", "2025-04-25", "2025-05-02", "2025-05-09", "2025-05-16", "2025-05-23", "2025-05-30", "2025-06-06", "2025-06-13", "2025-06-20", "2025-06-27", "2025-07-04", "2025-07-11", "2025-07-18", "2025-07-25", "2025-08-01", "2025-08-08", "2025-08-15", "2025-08-22", "2025-08-29", "2025-09-05", "2025-09-12", "2025-09-19", "2025-09-26", "2025-10-03", "2025-10-10", "2025-10-17", "2025-10-24", "2025-10-31", "2025-11-07", "2025-11-14", "2025-11-21", "2025-11-28", "2025-12-05", "2025-12-12", "2025-12-19", "2025-12-26", "2026-01-02", "2026-01-09", "2026-01-16", "2026-01-23", "2026-01-30", "2026-02-06", "2026-02-13"];
+        const allReturns = [0.0017094317344805022, -0.010945647556012607, 0.019092782838500126, -0.0028436497872815947, 0.007457110278108713, 0.01461729183860309, 0.0022306099326565533, 0.0007735735829715738, 0.005380130091921176, 0.0037475245135615586, -0.015463802629618486, -0.008175083887265096, -0.006384525809835011, -0.009245396124567496, 0.02582318857540705, 0.0009261171460566945, 0.019748414338272305, 0.0013238087065287878, 0.008469289357852955, 0.0032493690509499103, -0.00493714311848171, 0.009290002835919412, -0.018539747559985602, -0.0012240989955512249, -0.004313364487221782, -0.0057550437062504275, 0.016237947770490268, 0.011913033156487873, 0.002347489621281486, 0.0004936352299577738, -0.009289573955503498, 0.0005392749093966416, 0.003922480007586997, 0.005035497944859138, 0.008877651146897338, 0.009624065223333228, 0.0006567784079185732, 0.003990211834644226, -0.002225289785120134, 0.005688989137993562, 0.0029337077274287976, 0.009497280543244412, 0.009504527053439732, 0.005992052195577458, 0.001656694615896717, 0.005963044563593506, 0.010507129641120992, -0.006004887804859167, -0.014571880058132617, 0.017804431523010523, 0.01046167737334415, -0.005369108877320086, -0.06162320364479425, 0.0013817494071227043, -0.08823581749813754, -0.10833610783891601, 0.08981759868009817, -0.021604918149176828, 0.08522770952471766, 0.013629709278724483, -0.0106736543960056, 0.002861094910301366, 0.02345653407523403, -0.012400827020842171, 0.027743163067617475, 0.023937601509634747, 0.03651946396064662, -0.023876039765590572, 0.015090082271429816, -0.012055460988175523, 0.0234510930457475, 0.013745230134204216, 0.008375568815294653, 0.004092369983639244, 0.010673131530666635, 0.01697918646719376, -0.0014140526176482805, 0.005572339123269166, 0.01720174111063652, -0.01348526687438847, -0.010862862730175074, 0.00029654699726127206, -0.01192270912153957, 0.011604615616329349, 0.02659191636517706, -0.0016408415998048363, -0.0015569463928442725, -0.03562136102523269, 0.054498079183016954, 0.009970971633331735, 0.004825878092657833, 0.014437251042051805, 0.012028504176016528, -0.002965819436516646, 0.013012990354327188, -0.0006610620487311258, 0.007667821195674572, 0.013920587439983974, -0.007238865249474688, 0.012824434041089912, -0.02150393168039873, 0.0302345238493841, 0.01306346915100283, -0.006092519073280711, -0.025488203699824494, -0.0031964685466843437, 0.014852285060495471, -0.0020147275047176644, 0.0021685782456806746, 0.01065077724098713, 0.01187601668536205, 0.009079935706107654, -0.00011710171724421567, -0.0030388370771620866, 0.008625492889801207, -0.011681615341553328, 0.0018467759402182136, 0.012611962773121689, 0.006541372978107242, 0.00401692105394562, -0.012858895300574949, 0.015323349281811303, 0.005765563614909411, -0.0005459198378839714, -0.009022032760101774, 0.01152451471340837, -0.0015680237483643587, 0.004429686457819515, 0.004013092682380724, -0.010550141877284609, 0.017819569699833653, 0.008651556415569748, -0.011690495010743604, -0.005816162466789949, -0.001155627279272628, -0.015302675127521493, 0.0005555573307288184, 0.015668599346488243, 0.00502903100142608, 0.0055623123223403695, 0.017925025522385604, 0.0011399012423632107, -0.005083663431184168, -0.023896331893277587, -0.008393204646620564, 0.018321959998084798, -0.014075594079864957, 0.016453415278020876, 0.0033680875211775188, -0.019663232441823875, 0.0010223725211279317, -0.0332020614538384, -0.007259177293377474, 0.011511205912926762, -0.008333134517110125, -0.007531357747105295, -2.1524522571733233e-05, -0.023793825519966463, -0.020520327725350757, 0.04842631704039781, 0.0038394051970633606, 0.005886600314992834, -0.02081275126687593, -0.012815098748556467, -0.02501544871913482, -0.020623842741680196, -0.01179725188809496, -0.013656650513968237, -0.008457193983437935, 0.040515999386023495, -0.007872535694707847, -0.037655515922954366, -0.038443445277127876, 0.03541256476391989, -0.01927986313728064, 0.01162283804277106, -0.011753642927835466, 0.027064282498038092, 0.026955862117737917, 0.007855485901043947, 0.024057495356020264, -0.024572310316062385, -0.021721317728938264, -0.024035174224180805, 0.025576465115371518, -0.033693560626807756, -0.037219923767373105, -0.017836535856286872, 0.012636363046000845, -0.020852465765336566, 0.029304190537627305, 0.023262512723343284, -0.010903374768165662, 0.04581573171798589, -0.006294402606806414, 0.01031003692528203, 0.01988160866982025, -0.019883998949888047, -0.013545293263033362, -0.004432382644452811, -0.0028221026633029125, 0.023435891830387807, 0.030374513642368015, 0.0002767714689446108, 0.017680986141650222, 0.007883310487882178, -0.01704320344315191, 0.0022414010866336344, -0.021479097157253546, 0.01826054605598457, -0.02726227125684414, 0.010999350323405531, 0.011231667325718139, 0.025975343621764707, -0.003104758687518864, 0.008864323442696293, -0.00559329283331279, 0.005949975270764763, -0.00031721622452010167, -0.004417775537066974, 0.00952031168782261, 0.0017201505321902558, 0.014557660919466777, 0.0033042873926351886, 0.018577515687486217, -0.011648996955053458, 0.017756564541261625, -0.009843629786354497, 0.026949169541914647, 0.00048011176308652515, 0.00973391923724983, -0.01851956606988259, -0.007728561544689197, -0.020854702376507852, 0.006789722087329231, 0.019610109467148182, -0.011236605923038054, -0.00033614636989762637, -0.019487882253169428, -0.005522140885372018, -0.0027404764205811167, 0.0025078362913736377, -0.018181718376888045, -0.008729921213447206, 0.04460999099172077, 0.0038332204055761807, 0.02202067720715985, 0.009058613507715392, 0.01565866927810876, 0.0024003560278904467, 0.022128016834968747, 0.010990801629494703, 0.003286421427862711, -0.017558415578113218, 0.012091865488988955, -0.001712890653973326, 0.007719833909281396, 0.006151934734106447, 0.012967889683237388, 0.0020856123963793475, 0.009021707225757415, 0.01201030894835246, 0.003840419815571733, -0.006326746010091488, 0.01343272622461262, 0.00499049862938561, -0.008255614399032656, -0.01271271643579243, -0.018984472398506147, 0.020392860243252597, 0.008342243664605788, 0.007449205739608677, 0.014736430984299224, -0.0017594673233215401, -0.005225026561237033, 0.005968750471003688, 0.005911823925779782, 0.002939797887356296, -0.0017956492880687675, 0.016478864565129616, 0.010220292838127474, -0.014787329103225937, -0.0044088823280628905, -0.016691523762613503, 0.0027264583653098815, 0.02904888313943213, 0.013176175242607571, -0.00262312407456845, -0.02634739222279619, 0.028284457124648187, 0.010468411508933856, 0.014365243779289483, -0.002315362502924648, 0.0022248585936712577, 0.005090180068000808, -0.010628098233871473, -0.00788958642626762, 0.029695906244494828, -0.017629311389896377, 0.014249243739125013, 0.010489064663572434, 0.010929652740011758, -0.007476403213402939, -0.01688154886545869, 0.0028550215353195596, 0.00036975023748075963, -0.01329235907845205, 0.02333102364170948, 0.015227191755526346, -0.0041760311355654185, 0.0018566581451580175, 0.014857981447789818, -0.010627754757522317, -0.010339506567907369, -0.00752912346339302, -0.010249336806768943, 0.004335756405052861, -0.012402619594470463, -0.05856456488264874, 0.03147320341449874, 0.002502823109828658, 0.03525158656118959, 0.0164655617332183, 0.0018892592393847725, 0.029390202952149877, -0.00927644151836144, 0.007690050920156876, 0.014683645474416009, -0.001642349766813707, -0.0003737580303985404, 0.024006230751650447, 0.010910830208891659, -0.0037696076009119187, 0.00721224926708121, 0.00899668941903878, -0.016172702536463742, 0.017494185469260265, 0.008753159084541596, 0.0056121231858838935, -0.002246166736604895, 0.0059015585422402, 0.015358100982922297, 0.010912332986380122, -0.002532456956935301, 0.015878259199746433, -0.017204772881892653, 0.01667688555528, 0.011634965260714074, 0.00015769569311411928, -0.011464794666428111, -0.002860826286641288, -0.01591371110910343, 0.028967849121353674, 0.002104999422552422, -0.0024470640495612957, 0.0018019941068522435, 0.008834709222535408, -0.003018347469176429, 0.015513658363371423, 0.0023611659342425723, 0.0024570085420491136, -0.0048891782422540745, -0.0011032473979809862, 0.006247585430200651];
+        const allNav = [10017.094317344805, 9907.450733411813, 10096.611538747984, 10067.900311493559, 10142.977754385372, 10291.240620333681, 10314.196363880757, 10322.175153717435, 10377.70979887603, 10416.600520741948, 10255.520266217613, 10171.680527733737, 10106.739170875026, 10013.298363712602, 10271.873655620568, 10281.386613935165, 10484.427696759121, 10498.307073427064, 10587.220273799512, 10621.622059692783, 10569.181591433658, 10667.369318391426, 10469.598984099315, 10456.783158499054, 10411.679241372607, 10351.759572283047, 10519.850903550452, 10645.174236165758, 10670.163672201888, 10675.430840899904, 10576.260636596502, 10581.964148593057, 10623.471691406916, 10676.966161276267, 10771.752542163304, 10875.42059119869, 10882.563332620024, 10925.987065621108, 10901.673578211627, 10963.693080784025, 10995.857351896278, 11100.288093980735, 11205.79108247095, 11272.936767529853, 11291.612581177964, 11358.94497019436, 11478.294877582552, 11409.369004651577, 11243.113047976818, 11443.290284344988, 11563.00629538933, 11500.923255640248, 10792.199519754779, 10807.11163504275, 9853.537305131118, 8786.043425047652, 9575.184747384497, 9368.313664654008, 10166.753580401582, 10305.323476010888, 10195.328014788905, 10224.497815880872, 10464.329097301235, 10334.562762276435, 10621.276222222798, 10875.524099954124, 11272.692410375543, 11003.545158120145, 11169.58955983357, 11034.935008641065, 11293.71629628248, 11448.951025845297, 11544.842503025204, 11592.088269950427, 11715.812152770706, 11914.737111927214, 11897.889046725502, 11964.188119344888, 12169.99298597281, 12005.877382697532, 11875.459184733974, 11878.980816496307, 11737.351183560873, 11873.558632399967, 12189.299310509774, 12169.298601128618, 12150.351655568145, 11717.539592661618, 12356.122993212628, 12479.32554507591, 12539.549248835036, 12720.58586929464, 12873.595489544827, 12835.414729824082, 13002.44185789707, 12993.846437043981, 13093.48092816729, 13275.749874321604, 13179.648509895658, 13348.670042895565, 13061.621154268954, 13456.53305056932, 13632.322054954879, 13549.266872821961, 13203.92039878419, 13161.714482536552, 13357.196017916038, 13330.284907712838, 13359.192673572428, 13501.478458858077, 13661.82224231253, 13785.870709900995, 13784.25636076716, 13742.368251456954, 13860.902951098926, 13698.985214537586, 13724.284170837202, 13897.374331887542, 13988.282240808792, 14044.472066250428, 13863.875670398664, 14076.316679695788, 14157.474578976186, 14149.745732749183, 14022.08626320121, 14183.684002654156, 14161.443649298697, 14224.17440445517, 14281.257334670596, 14130.58804360381, 14382.389042146442, 14506.819092335243, 14337.22719611454, 14253.839553418657, 14237.36742759635, 14019.497619180687, 14027.286253856157, 14247.07418208633, 14318.72315982766, 14398.368370099748, 14656.459490614492, 14673.16640699649, 14598.57296751356, 14249.720622713627, 14130.119801370023, 14389.011291138871, 14186.477408994208, 14419.893413136651, 14468.460876198145, 14183.964166914027, 14198.465462118946, 13727.04713929547, 13627.400070396774, 13784.267878664945, 13669.401720212149, 13566.452565668335, 13566.160554253865, 13243.369697050099, 12971.611410678652, 13599.778777377018, 13651.993838693792, 13732.357669924928, 13446.549525433005, 13274.230665437226, 12942.169828940014, 12675.252553651837, 12525.719406531187, 12354.66003416016, 12250.17427765184, 12746.502331163863, 12646.155036579099, 12169.957544235047, 11702.102447358278, 12116.503908149378, 11882.899371097932, 12021.01238596675, 11879.72169875101, 12201.237842804077, 12530.13272776043, 12628.563008741563, 12932.37460467757, 12614.596282767867, 12340.590628887583, 12043.982383092976, 12352.024878364306, 11935.841179261299, 11491.59008046972, 11286.619921953672, 11429.241748849703, 11190.91387655806, 11518.854549086895, 11786.812049593369, 11658.296020494723, 12192.429383258572, 12115.685323965286, 12240.598487030466, 12483.961276033997, 12235.730203130894, 12069.993649242133, 12016.494818872576, 11982.58303684067, 12263.40555674071, 12635.900536125824, 12639.397792878646, 12862.874810093339, 12964.276845988063, 12743.324038208546, 12771.88693855511, 12497.558338120427, 12725.770577741028, 12378.837168298287, 12514.996334908794, 12655.560610325074, 12984.293145904338, 12943.9800489583, 13058.719674748074, 12985.678431579065, 13062.942897121064, 13058.799119694118, 13001.10827639966, 13124.882879478115, 13147.459653748183, 13338.85591333982, 13382.931326766447, 13631.552943434, 13472.759024703288, 13711.988939874296, 13577.013197115586, 13942.902427637468, 13949.596579104544, 14085.380825597764, 13824.525684778648, 13717.6819871977, 13431.60381205911, 13522.800669130102, 13787.984270554167, 13633.054124832901, 13628.471423178222, 13362.881376792639, 13289.089663195475, 13252.671226322502, 13285.906756181517, 13044.34614115903, 12930.47002706578, 13507.2981784919, 13559.074629493896, 13857.654635137773, 13983.185772600886, 14202.143854068396, 14236.234055677476, 14551.253682528062, 14711.183625213182, 14759.530774308307, 14500.376799235051, 14675.713405031056, 14650.575512699188, 14763.675522332613, 14854.500690581526, 15047.132216836562, 15078.514702317956, 15214.548647361547, 15397.280077126099, 15456.412096640202, 15358.623303077453, 15564.931485094647, 15642.60825433749, 15513.468912394555, 15316.2505811758, 15025.479644768864, 15331.892151252474, 15459.79453141768, 15574.957721574287, 15804.477011121644, 15776.669550258388, 15694.23603281043, 15787.91101152331, 15881.246361579315, 15927.93401608167, 15899.333032705288, 16161.33598842713, 16326.509574884223, 16085.084104693442, 16014.166861638852, 15746.86601492935, 15789.799189503168, 16248.475220954148, 16462.56797789061, 16419.38461949858, 15986.776652871707, 16438.95395167118, 16611.043686413694, 16849.66537839745, 16810.65229499348, 16848.05361921722, 16933.813245934365, 16753.83901528254, 16621.658154399698, 17115.253356580793, 16813.52322564066, 17053.103216196254, 17231.97431854551, 17420.313813872017, 17290.072523695497, 16998.189319499405, 17046.719516068017, 17053.022544657353, 16826.34764562083, 17218.923560344432, 17481.11941122155, 17408.11771227575, 17440.438635818115, 17699.56834951042, 17511.46167777782, 17330.401804746776, 17199.91906988863, 17023.631306292173, 17097.441624765685, 16885.38856025505, 15896.503126349262, 16396.817002824067, 16437.85533534637, 17017.31581558064, 17297.515479675756, 17330.194970614135, 17839.532918000812, 17674.04553417209, 17809.95984429505, 18071.47498056226, 18041.795297841953, 18035.052031966577, 18468.00565266399, 18669.50692663706, 18599.13021142113, 18733.271774656798, 18901.80920261583, 18596.115864980933, 18921.439764930765, 19087.062137301775, 19194.18108127293, 19151.067750191807, 19264.08889766597, 19559.948720300315, 19773.39339393275, 19723.318126270067, 20036.49008375804, 19691.766822516685, 20020.164164197053, 20253.09807876128, 20256.291905100516, 20024.057677705307, 19966.772327135706, 19649.026880540427, 20218.216926597346, 20260.77626155287, 20211.196844347018, 20247.617301952963, 20426.499113264897, 20364.844841362243, 20680.778086854207, 20729.608835566516, 20780.54166154884, 20678.94188939494, 20656.127900562467, 20785.178824278384];
+        const assetClassNavs = {"Cash": [10004.37493153277, 10008.749863065537, 10012.031310686862, 10016.408233993605, 10020.784161413363, 10025.825341340267, 10030.20823996893, 10034.596118032527, 10037.880553314812, 10042.712596974498, 10048.200930158446, 10051.499307858545, 10056.98863692948, 10061.383486201987, 10065.340145200324, 10071.93988826148, 10075.240257735553, 10079.642078216966, 10082.398693396275, 10087.91291964188, 10092.321711332197, 10094.526605120851, 10100.592552757113, 10102.801430093714, 10108.322627548227, 10110.52752133688, 10114.944280123094, 10118.046468086803, 10121.361775865676, 10125.786501747782, 10130.21321940386, 10134.310298467328, 10138.738012010395, 10140.95087289494, 10144.277135430668, 10147.490862736891, 10150.822104707555, 10151.92853514983, 10155.257785346517, 10158.584047882245, 10161.58365948632, 10162.700048798459, 10167.696413810956, 10168.809815462137, 10173.259438518911, 10175.486241821272, 10177.7080656887, 10179.9318813301, 10182.1556969715, 10186.386224891194, 10188.615019967528, 10191.957216695044, 10194.184019997405, 10206.11375021162, 10213.918516526739, 10218.375110792422, 10213.918516526739, 10211.909812474476, 10209.677033850194, 10213.021222351681, 10211.909812474476, 10211.239580532396, 10211.239580532396, 10211.239580532396, 10211.239580532396, 10211.239580532396, 10210.119207672307, 10212.353978070563, 10211.239580532396, 10211.239580532396, 10212.353978070565, 10212.353978070565, 10212.353978070565, 10211.239580532398, 10212.353978070567, 10212.353978070567, 10211.239580532401, 10212.35397807057, 10212.35397807057, 10212.35397807057, 10210.119207672315, 10210.119207672315, 10210.119207672315, 10210.119207672315, 10210.119207672315, 10211.239580532401, 10211.239580532401, 10211.239580532401, 10210.119207672313, 10211.239580532398, 10211.239580532398, 10211.239580532398, 10211.572206785973, 10210.453825699858, 10210.453825699858, 10210.453825699858, 10210.453825699858, 10209.344407596625, 10210.453825699858, 10209.344407596625, 10210.453825699858, 10210.453825699858, 10209.344407596625, 10210.453825699858, 10209.344407596625, 10209.344407596625, 10208.227022397497, 10208.227022397497, 10208.227022397497, 10209.344407596625, 10207.107645424398, 10208.227022397497, 10208.227022397497, 10208.227022397497, 10207.107645424398, 10205.993247886232, 10207.107645424401, 10207.107645424401, 10207.107645424401, 10205.993247886234, 10205.993247886234, 10205.993247886234, 10204.876858574093, 10204.876858574093, 10204.876858574093, 10203.763456922912, 10203.763456922912, 10204.876858574093, 10204.876858574093, 10204.876858574093, 10203.763456922912, 10202.64806349776, 10203.763456922914, 10202.648063497762, 10202.648063497762, 10203.763456922916, 10202.648063497763, 10202.648063497763, 10201.530678298635, 10202.648063497763, 10201.530678298635, 10201.530678298635, 10201.530678298635, 10200.41628076047, 10200.41628076047, 10201.530678298635, 10201.530678298635, 10199.300887335314, 10200.41628076047, 10200.41628076047, 10200.41628076047, 10199.300887335316, 10198.185493910163, 10198.185493910163, 10198.185493910163, 10199.300887335316, 10198.185493910163, 10201.75375698367, 10200.639359445502, 10200.639359445502, 10200.639359445502, 10202.8711421828, 10200.639359445504, 10200.639359445504, 10201.753756983673, 10201.753756983673, 10203.988527381929, 10205.099937259134, 10206.220310119223, 10206.220310119223, 10205.212472488636, 10205.212472488636, 10207.449234660864, 10208.561640425058, 10212.248414049987, 10211.128041189899, 10211.128041189899, 10215.596586099422, 10216.714967185537, 10221.967275153627, 10225.324410185945, 10229.798930417388, 10233.150090127785, 10239.751824962917, 10243.11294354318, 10247.592443209556, 10253.189328075063, 10257.668827741441, 10260.477229044063, 10264.962704032361, 10270.57054365472, 10273.936641669916, 10283.830778883224, 10289.4525609234, 10296.194715823664, 10301.820481411783, 10309.69595570296, 10319.84404409789, 10326.60810851186, 10336.903588180829, 10343.686574447549, 10345.948233794446, 10356.12520291199, 10362.910180952682, 10371.95781422726, 10380.57821198452, 10387.38808719988, 10398.740202961782, 10406.683397568057, 10415.212173722539, 10423.178273729513, 10439.115453178389, 10449.354167289112, 10450.49246611496, 10461.010028581972, 10471.2935576071, 10482.72634021493, 10488.434764422951, 10493.371376216244, 10505.988268451316, 10514.021092886398, 10524.34346150401, 10534.81222550867, 10545.18040492767, 10556.696842042385, 10564.760538974057, 10576.277971975758, 10584.722097736367, 10596.286337426445, 10605.538127533306, 10615.946142431774, 10628.020276259067, 10638.476093732901, 10648.931911206733, 10659.384741019607, 10671.591327816137, 10680.922788881937, 10691.4214294962, 10701.923057771422, 10712.421698385686, 10724.60836744248, 10735.153814745123, 10745.698266160774, 10757.412884785854, 10766.590979255694, 10778.358379891071, 10790.128768187407, 10799.544879647081, 10811.204724487889, 10821.845776941254, 10833.671934908849, 10845.666397777202, 10855.16915140472, 10864.669913258265, 10877.736946411344, 10887.240695925848, 10897.927559180605, 10909.36532122337, 10918.910897991318, 10932.034696702642, 10941.578281696618, 10952.9244221366, 10962.50684672306, 10974.483383625651, 10984.063816438134, 10994.843297182659, 11007.477119496503, 11017.099379562429, 11029.129694362306, 11038.753946202207, 11051.785127423762, 11061.449214743134, 11072.320317090438, 11086.820431617441, 11092.860486192048, 11104.389869837594, 11117.737743120935, 11127.444653580736, 11137.152559927523, 11149.582225409085, 11160.552916455064, 11171.516636292137, 11183.70728889688, 11196.174798083937, 11204.744405604875, 11218.205810004705, 11228.000358519339, 11239.013872705747, 11252.047045701274, 11263.11334189798, 11276.635495404, 11285.2379671955, 11295.231693107484, 11306.341808331608, 11314.982123828606, 11324.854351528207, 11335.86089450571, 11348.249728620814, 11354.448129226315, 11365.60106759087, 11373.03436805993, 11386.094430004101, 11397.288199735114, 11406.394590341908, 11416.384332705944, 11422.629539999822, 11432.620278250846, 11443.860854670234, 11451.352912471515, 11458.847957933756, 11468.374612848955, 11478.4012030315, 11488.42679732706, 11495.948731737944, 11505.878720882776, 11514.6823618456, 11524.74082041172, 11533.543465487557, 11542.502464820313, 11552.594783543984, 11561.42531345545, 11570.259826914862, 11579.366217521656, 11588.22761992971, 11597.091014111738, 11608.484957127086, 11614.815810701823, 11624.470935038313, 11634.635953512015, 11642.256480734588, 11652.420503321304, 11663.378247836456, 11671.025664007668, 11681.223546751933, 11690.146694153165, 11700.235029328891, 11709.188053339725, 11719.42079212853, 11728.37580791334, 11738.606554928168, 11749.13308037806, 11758.11896865946, 11768.38855526677, 11776.089749335268, 11783.94231822575, 11794.246760877599, 11800.687162020875, 11810.98961289875, 11818.718691802878, 11828.151733341325, 11837.198370728916, 11844.952346807711, 11852.706322886504, 11863.204963500766, 11873.57513469374, 11882.024239889282, 11889.832989752345, 11897.640743728423, 11904.1488651868, 11913.258243454557, 11919.765369025947, 11927.574118889013, 11935.928614820812, 11939.844442452697], "Fixed Income": [9992.476439596714, 9990.83997817991, 10052.16342371292, 10115.92490511312, 10165.619020579663, 10182.879181361497, 10197.718567292297, 10181.677856707043, 10222.317381943265, 10231.93114153435, 10208.884211729892, 10202.857142569006, 10217.382658676474, 10232.124413469737, 10344.14266292769, 10360.893791073904, 10470.41856271221, 10494.535612127342, 10514.759579518903, 10495.494329133922, 10502.752157737303, 10551.12508681912, 10567.748202514853, 10580.231148284764, 10613.144952523196, 10635.853650057405, 10684.028031985, 10715.026216724715, 10588.796454683183, 10695.390467414194, 10648.080689379613, 10701.26172871507, 10648.9440244773, 10683.317024902984, 10699.111338336736, 10719.307381998648, 10654.521559332405, 10677.327987733282, 10678.139037050412, 10696.334815733315, 10720.865607079013, 10797.588524596138, 10829.5489932511, 10870.728733814763, 10886.945882730884, 10904.07824470122, 10935.935644881463, 10935.013869430659, 10963.999085705771, 11000.173679196798, 11026.148282071228, 11058.95644926328, 10902.131794682391, 10950.586060732172, 10018.620310926835, 8954.475012562663, 9743.671109934972, 9584.430615438121, 10281.05933499081, 10204.097319104309, 10043.420193283335, 10112.747185317055, 10181.860977139944, 10168.391509343128, 10417.45405560575, 10561.144634753127, 10751.522245130476, 10676.942028515232, 10767.792884094953, 10706.717023098769, 10804.869713761134, 10825.236116790968, 10930.680163149484, 11019.775854585463, 11083.413451942068, 11157.586781827871, 11039.256211563932, 11088.989113062895, 11098.090029285207, 11104.910815726074, 11108.84338760025, 11084.480109222255, 10953.438687027916, 11035.7081794689, 11132.80870485418, 11121.495033954614, 11098.022235694052, 11000.132804743533, 11209.914252094502, 11267.669821391177, 11339.997641615575, 11393.333176825263, 11435.598329856311, 11445.741168792942, 11488.787626224517, 11518.497876424202, 11552.334804086348, 11467.219443657888, 11450.527972505022, 11462.885339985813, 11443.103061164455, 11497.977200307334, 11497.091517503999, 11421.672647845942, 11327.649444224284, 11267.247302311169, 11244.241617061174, 11263.142737779108, 11304.192211227106, 11359.559515030149, 11372.363824032022, 11420.338832792782, 11445.82741233964, 11435.793103568305, 11475.706923577753, 11450.635993795362, 11450.188292203755, 11494.936964271958, 11536.833962039142, 11606.925148352992, 11590.05606726231, 11592.84232206042, 11642.585821121545, 11645.302308747232, 11641.78401275575, 11669.482269424307, 11666.492013998193, 11626.302412590625, 11651.42924973615, 11638.882527219961, 11700.106024181716, 11727.34000135291, 11718.877898918243, 11711.96134880702, 11659.024924241923, 11618.20738324021, 11531.171065136516, 11591.572872457062, 11550.701223781969, 11591.587710080525, 11672.724186981552, 11584.87431706955, 11575.20695461136, 11451.28960225273, 11569.789883397041, 11577.729287091706, 11582.129177506717, 11605.969846312815, 11626.877683788365, 11453.254627042383, 11406.770503604816, 11391.333922184833, 11331.679445511349, 11257.496598707083, 11152.765342169769, 11150.825017517856, 11075.921919972623, 10860.568575706764, 10720.634580914317, 10901.053170804507, 10771.1381055673, 10918.587824361624, 10714.487708326411, 10633.626594530084, 10511.779369859452, 10426.690013428135, 10329.694962990372, 10312.477647885762, 10323.714789506488, 10581.154622019547, 10485.867807415452, 10187.046253149452, 10069.662907010734, 10137.974916112047, 10132.5021459484, 10097.124579364878, 10077.505102853898, 10275.108294214808, 10423.976214730757, 10422.534862264003, 10564.17408366848, 10341.697752681084, 10288.331211496214, 10172.841272075066, 10251.384847220113, 10095.969604506121, 9892.507069553278, 9722.416781686348, 9772.369232827847, 9644.929785594848, 9660.83868069475, 9857.640882705351, 9819.147912908678, 10073.510623614164, 10104.096551298582, 10238.560526190819, 10408.523638968867, 10333.61507825831, 10358.505536735209, 10296.023937206452, 10216.617510757522, 10437.005009267656, 10562.633245507828, 10571.154370580818, 10590.999280403068, 10634.208147658333, 10441.607037996891, 10395.67190452939, 10334.49375266742, 10407.71035106615, 10379.437556885181, 10356.657786726708, 10439.761137875936, 10560.069175557703, 10576.01641255647, 10571.561033227903, 10521.670415058072, 10608.565765077794, 10561.752571153302, 10530.825680926062, 10455.535867314025, 10445.554149716296, 10549.693171312972, 10554.828681210698, 10613.966382004055, 10586.037469410741, 10650.449544715188, 10510.593942180447, 10687.357818721392, 10710.907383157582, 10721.213911003852, 10650.931561582203, 10632.605497552944, 10527.632928697461, 10581.478482243101, 10654.902286508874, 10618.106855377076, 10613.800017751493, 10557.90860910751, 10464.864272630157, 10355.002930524659, 10409.062490816477, 10261.968444554894, 10328.118641561301, 10588.327344071482, 10558.923609866824, 10702.966273246015, 10748.248096429565, 10959.60780108464, 10955.084284075929, 11182.487460720546, 11221.092552912703, 11246.504969295185, 11108.604883629896, 11248.14982601998, 11152.97079022117, 11184.257780840338, 11221.90128417193, 11200.844127141287, 11161.539433812164, 11222.090265645164, 11271.033734555527, 11330.326820942311, 11266.861360514871, 11346.251377222456, 11356.698522077606, 11290.953517385537, 11205.137011802146, 11144.885691184478, 11178.943789446706, 11318.877448763986, 11308.123650288688, 11373.112352533899, 11357.113916949349, 11363.113433741542, 11379.383751462812, 11456.663212604633, 11468.073096313115, 11408.298980949756, 11530.48321419348, 11610.158776202727, 11563.739728297993, 11597.035280000357, 11709.483609160763, 11685.205856553257, 11813.774556005417, 11894.207010436781, 11864.985985743066, 11921.024927003617, 12012.71079724002, 12065.29872566292, 12068.127228363654, 11992.362098940517, 11961.878142440008, 11987.743851066662, 11885.335895672482, 11828.215101848153, 11988.744910731737, 11867.656761483255, 11900.387848000923, 12037.838538797956, 12076.52723840434, 11970.48439208725, 11871.238017710057, 11860.727627568916, 11901.662073835896, 11813.19350145474, 11944.057592148856, 11986.585644116385, 12000.373913568148, 12033.360110917392, 12082.644276253986, 12099.32587665349, 12206.692938482423, 12146.580553505388, 12091.94736388459, 12141.62963543575, 12097.165078252154, 11931.99152174412, 11806.898722817588, 11965.170413542579, 12107.752325564657, 12082.047822595978, 12090.89789312998, 12169.492283677597, 12118.574347278933, 12222.651868990855, 12219.54816447576, 12269.113776231039, 12312.724467595188, 12403.663895338117, 12459.020574643153, 12397.309707877574, 12430.058486139309, 12501.59367244694, 12548.532795001493, 12581.86633729021, 12614.777985499702, 12668.208604481031, 12665.426145935284, 12777.42007831405, 12825.922304909958, 12826.48315381654, 12803.771518095375, 12852.418155683154, 12770.125043401835, 12875.768312459684, 12933.956885794914, 12891.89671945141, 12881.662360673252, 12865.1832203671, 12895.30929781709, 12976.548307972726, 12962.726333868477, 12941.734364594486, 12983.897995618654, 13026.903880219192, 13010.260239771218, 13047.491855005426, 13042.704487292669, 13071.505609947877, 13058.585094981045, 13086.87216528466, 13103.624946943213], "Core Equity": [10050.287082354545, 9864.589078485627, 10190.342043407605, 10063.054052718517, 10173.7665975266, 10417.369861014542, 10437.15879246244, 10462.491489575496, 10523.99959046539, 10569.255484561498, 10284.530314903359, 10153.62663703639, 10091.782675957062, 9914.067384296237, 10285.945293151144, 10297.28087671197, 10581.448631623422, 10568.756815458839, 10731.837069713134, 10769.70340170502, 10656.30192860583, 10771.02010994473, 10400.104564074578, 10338.31567931016, 10223.390221315285, 10090.976988479757, 10358.85148499245, 10563.126382005397, 10706.47067024568, 10647.512353160757, 10529.418877473037, 10488.368886035532, 10617.943136747816, 10711.02288556056, 10860.114050190808, 11032.661588469196, 11096.623990195721, 11139.81881790764, 11105.954369311348, 11183.722546999374, 11249.475232077848, 11384.044537949178, 11550.483392640424, 11637.749181960631, 11627.683697705663, 11722.072296507755, 11914.23048535167, 11767.579277124973, 11458.177767458194, 11801.124144266845, 11957.626545635367, 11796.290233110904, 10623.802326287805, 10557.10051068097, 9384.216360941036, 8090.844679738593, 8937.999718159233, 8662.758464762785, 9651.25875782046, 9868.315714471208, 9699.099172560187, 9745.8949388804, 10054.102390578546, 9809.116630842931, 10143.742258979843, 10558.700121688547, 11214.984418991135, 10754.035286904866, 10936.447962574937, 10729.517420407892, 11137.727309043956, 11398.330614831902, 11521.444302172327, 11512.525087275188, 11597.436469235568, 11845.889432534284, 11936.766739056215, 12001.395273359656, 12377.759113215792, 12126.094290652962, 11909.452279926605, 11869.980627229803, 11671.947316187214, 11831.002320305675, 12283.098041018366, 12240.504026433418, 12234.020986426727, 11528.016201829114, 12458.744127435848, 12759.514390627988, 12785.003196574206, 13100.152227293696, 13324.12844671496, 13232.975560370425, 13474.92201614699, 13427.377529868145, 13597.455020195079, 13950.727176372593, 13708.09887393455, 13946.72021021301, 13466.096270238084, 14121.986895648997, 14340.75485806718, 14236.948477525082, 13734.619162742598, 13825.285347594065, 14153.500873493325, 14098.607407078414, 14165.760081443406, 14333.934081238047, 14629.6414446942, 14855.552552634523, 14821.050824171538, 14778.51529508975, 15031.368747264889, 14832.411867732499, 14843.363584792936, 15083.828778200525, 15262.22583948371, 15306.523246633127, 15008.237728772257, 15373.901366059237, 15469.49297143776, 15457.459259405427, 15313.314521223669, 15516.05495087438, 15441.739520031135, 15585.864112638685, 15717.038277079266, 15460.949112676237, 15777.01375816366, 15958.378269477547, 15717.813138097219, 15566.591074118984, 15600.284256932457, 15251.35879232538, 15313.574793175325, 15642.20605078142, 15740.706880198188, 15840.198348714695, 16155.30967231981, 16160.84254068157, 16085.470054470983, 15622.723256870084, 15480.27732434588, 16009.349993575399, 15657.408164192433, 16004.477400517668, 16132.116913570375, 15918.336513114178, 15995.840831259442, 15266.17730291633, 15224.87402297625, 15497.811535429095, 15259.407146811105, 15115.674018349164, 15098.324990038016, 14505.972285370992, 14173.625421981476, 15158.251047345413, 15343.858871353525, 15476.431566613333, 15185.333649978616, 14888.938374417528, 14464.08506670405, 14042.754791459442, 13850.410763595968, 13656.356733585886, 13498.772764688161, 14241.461685117405, 14121.885199150194, 13424.152713894644, 12723.527873071767, 13381.587904373031, 13075.280316374488, 13253.444821275874, 13020.984781862257, 13368.674299567372, 13926.394706962676, 13971.371192122428, 14408.117879362759, 14110.695977546176, 13654.802914224094, 13226.405195551675, 13679.575015826418, 13101.226217754196, 12477.134969784705, 12165.636628918575, 12373.22339618918, 12146.110400187294, 12715.947271243644, 13027.634820897463, 12924.608736370958, 13687.640858161483, 13588.792267123185, 13767.176193466801, 14057.05625659085, 13680.444376756172, 13376.820875528123, 13408.206299618847, 13385.732869605885, 13728.233185452085, 14170.315451719584, 14154.984775434183, 14433.809152925385, 14522.33678595473, 14352.079269114078, 14386.08809698826, 13952.623390750452, 14280.358722080333, 13728.915549358147, 13779.559002840548, 14010.57848055281, 14524.475300992415, 14526.03420876586, 14717.14148868301, 14665.82937063343, 14793.825358558577, 14772.432094979491, 14718.03295205607, 14922.10471877617, 14914.50040930284, 15144.687681572075, 15232.601282517888, 15675.977418430168, 15359.437972517355, 15692.770702629774, 15498.058154980996, 15966.089333132886, 16006.188626042094, 16235.945616189892, 15810.317041356806, 15704.99502129311, 15318.065649855347, 15460.106619706079, 15821.316635642921, 15593.258717009336, 15676.40431207089, 15269.519127732954, 15125.332755786989, 15132.669921269457, 15171.723320583014, 14802.864875527946, 14533.52853224397, 15367.477635475829, 15507.769169095045, 15940.665906730133, 16088.392002460883, 16208.723530256399, 16219.70614278109, 16569.77352500518, 16735.43747333661, 16845.00247270774, 16556.2865754067, 16819.82529401366, 16834.638342688475, 17019.54980300953, 17118.822037294925, 17334.66823016697, 17361.420316521606, 17668.49637275859, 17828.718080784005, 17815.661630304166, 17784.26132372014, 18058.218267562417, 18139.107220016325, 17979.00022854556, 17689.038715728057, 17265.26061924384, 17763.020916878668, 17948.07965261675, 18213.4516827105, 18548.15438383761, 18475.58270606413, 18347.774585829688, 18484.99907637803, 18521.829372197284, 18607.70655337179, 18618.223692706997, 19048.93348191165, 19279.949867520965, 18803.859155085982, 18669.922333913677, 18209.988902540532, 18303.230325878136, 19024.398816660676, 19346.259901445912, 19348.295983294, 18591.298539226238, 19203.460047827102, 19458.072435542457, 19860.719734512833, 19848.894879664324, 19873.781751087958, 19908.486151424044, 19643.4640106099, 19409.66755169728, 19952.233484568973, 19478.537518418587, 19675.950697177934, 19859.575320630698, 20150.27106482028, 20049.737331464552, 19571.66928909285, 19691.597991006547, 19554.92090268356, 19237.558867871743, 19800.706349033815, 20228.596745798743, 20165.249542089212, 20179.689742193517, 20671.34028861813, 20431.467673370644, 20145.984066067427, 20118.888279207462, 19862.29557689539, 19953.714996341096, 19637.400439167846, 17932.02216927983, 18854.84293415087, 18844.6709547404, 19717.045978640206, 20239.31213203779, 20193.52586285773, 21011.94137021549, 20731.678281811062, 20955.554342956086, 21291.544419646252, 21188.44267451426, 21077.84913324087, 21825.46767780719, 22090.285016108952, 21944.47995130972, 22016.66165645764, 22380.422577967693, 21752.727833858644, 22382.074130795907, 22675.776728363566, 22805.939701593405, 22660.666875801584, 22733.27484293793, 23108.547222561454, 23358.192021226976, 23258.65519692345, 23599.445495159012, 22927.2181341002, 23426.10004669503, 23788.913630446492, 23876.780817173734, 23627.9624785356, 23772.166903965925, 23199.477659789223, 24002.396306303795, 24058.3997157995, 23987.99362686131, 24033.121040379465, 24324.320244124698, 24244.005825885884, 24602.621620818245, 24552.70562214472, 24623.901306008698, 24725.075879041757, 24805.227454976277, 25029.576997776832], "Sector & Thematic - Sectoral": [10039.59742983504, 9791.679583124604, 10113.917604221862, 10105.14419819218, 10197.904673881512, 10519.88798914877, 10575.252940601022, 10651.881749148351, 10743.444862444252, 10794.790665530329, 10448.808591250665, 10266.161238507322, 10016.543369970665, 9821.413905254947, 10279.791160622533, 10296.138339476562, 10610.913607816163, 10646.848146962986, 10802.738623138348, 10962.328919939246, 10889.780149181264, 11143.15674713037, 10695.829239650395, 10632.509723482508, 10547.30453636462, 10392.423814776881, 10730.626920047596, 11010.46905292629, 11119.5469050516, 10986.397233458478, 10841.571233447046, 10890.049640386273, 11011.809129950192, 11058.740500534179, 11238.8163541868, 11458.249636637864, 11608.97870469731, 11728.48923044993, 11634.396778280667, 11792.003206604322, 11794.195004497642, 11988.490301980577, 12220.082254468698, 12304.202357914714, 12311.165143161807, 12454.265523218875, 12726.92990823164, 12650.74228477308, 12229.098924656973, 12690.977969348323, 13008.29301981907, 12764.098015523487, 11409.448767474512, 11441.785732044613, 10455.855676679434, 8906.87830508084, 9910.270419640665, 9682.949351276082, 10775.32737284204, 11283.619204226203, 11214.58838578349, 11149.357711725323, 11671.93579467809, 11413.194530294259, 11885.346532279917, 12191.418617286805, 12833.002030066878, 12282.224630050636, 12586.665671189674, 12253.561656923626, 12772.338863107689, 13057.89426162135, 13233.158940135765, 13163.884182708507, 13491.11699204444, 13849.820017914555, 13986.177315435541, 14136.369060474779, 14591.905393482111, 14214.067960083448, 13877.844506140515, 13869.647965804463, 13863.1167527413, 14086.87118654528, 14734.132432585962, 14778.736417070115, 14701.765711213235, 13852.109749075687, 15102.638376694824, 15263.434101810324, 15250.938205392646, 15616.58511344151, 16035.264457289297, 15824.821526923946, 16094.397992281489, 16025.949926028352, 16247.20907711298, 16681.60488689331, 16509.725495183175, 16946.327536685993, 16284.805529854242, 17023.277225636244, 17508.35025947199, 17358.803435851572, 16819.024237929032, 16668.813445133495, 17081.821961169502, 17096.919606965224, 17322.159881792588, 17701.077770023305, 18179.703162639158, 18314.626213796426, 18263.431869093423, 18114.463456882713, 18239.52110535567, 17820.26757470561, 17842.644770097704, 18246.355252229016, 18287.600506456754, 18403.184587827738, 18162.560730648445, 18655.460883421638, 19058.154147156278, 19068.55842828373, 18746.46465167812, 19300.267302651377, 19292.344144638824, 19461.184527827056, 19445.411562897254, 19281.142202435847, 19756.673476433025, 19901.289630177907, 19615.094585356568, 19496.96988811609, 19568.45844749266, 18945.817737560657, 18980.18156619012, 19357.641405219034, 19684.585330087477, 20027.32419228844, 20760.045710714534, 20747.157772189534, 21021.076098550722, 20403.363403696272, 20185.612773046403, 20869.26948383769, 20354.012436531877, 20993.683920026684, 21116.32711849796, 20493.326212312768, 20574.49645135578, 19128.026898285774, 19022.842779304734, 19335.342917171365, 18907.987755495684, 18678.11790139063, 18888.458997027436, 18457.454349773172, 17864.45377864894, 19193.578379389255, 19477.25494219296, 19361.604719456616, 18804.2775053162, 18361.920874929336, 17833.5495110487, 17278.79098673098, 17243.436105963112, 16922.565705170273, 16435.940648809665, 17523.375762538373, 17311.36322841168, 16337.844096100207, 15387.685259316955, 16387.070775142776, 15691.870892615094, 16245.605581910722, 16220.088006449527, 16813.562374187717, 17489.51575852265, 17713.596911677643, 18168.987749872842, 17782.211743381486, 16947.338546164767, 16272.261360812194, 16930.79481828869, 16031.284306625193, 15241.142469302402, 14796.208008310754, 15004.849278741385, 14532.576042188422, 15315.344199477126, 15812.9234621475, 15271.172540846013, 16569.08926371831, 16453.892688775224, 16670.154554820852, 16967.700989975452, 16452.25347099028, 16032.507841514383, 15799.260265801217, 15781.917084149049, 16158.289033624713, 16803.54189731978, 16765.303352797062, 17385.996655046278, 17902.066820859087, 17570.68124048577, 17607.74156693092, 17095.50333842404, 17513.9922100238, 16823.184268753837, 17376.055877097133, 17660.62694190588, 18273.546549867504, 18019.349925477447, 18126.152222430803, 18001.262551474916, 18141.20589978087, 18084.309947730886, 18049.30715880198, 18699.08271483704, 19232.04132115232, 19518.82314621108, 19635.827122676183, 20286.19036887851, 19937.252495330376, 20453.48908843793, 20173.039645828594, 20834.58169473954, 20740.48434531397, 21151.458117799037, 20590.545342494992, 20310.99731591835, 19931.89226134572, 20169.998365569827, 20796.347021702775, 20401.33068462441, 20261.055279751563, 19649.03309845813, 19683.329048079566, 19953.849826584476, 19974.22811964344, 19387.741162158953, 18854.484088641715, 20068.216374682877, 20546.876143638412, 21082.002373107476, 21245.804683862036, 21348.16583268623, 21487.135662008557, 22233.350226915252, 22403.989097043297, 22505.61409726249, 21907.395297574443, 22460.396968977657, 23101.955062496956, 23259.242687801845, 23674.59512075521, 24263.38278808693, 24122.162456145437, 24561.837930837006, 25090.075968219295, 25026.27888723305, 24719.35591351673, 25417.517683827864, 25406.631391490584, 25121.57922987683, 24773.7599593496, 23627.39510486512, 24523.12957774306, 24665.953360579813, 25104.9479361915, 25542.73888353299, 25840.888905150507, 25602.020915625417, 26131.37468385332, 26745.09109757179, 26909.778141617462, 26786.125338580914, 27336.41946096475, 27642.686159019075, 26627.746623111667, 26258.10537670355, 25275.648462039648, 25466.176600699328, 26792.318256835697, 27186.115609005996, 27061.78639555238, 25453.580583114708, 26974.172863572723, 27282.774577261665, 27772.518128725525, 27749.294538118917, 28200.331458424476, 28181.532552118537, 27978.363275548294, 27607.647652020973, 29070.915949343318, 27988.565721187264, 28560.665445676488, 28774.67183044707, 29241.90429006072, 29077.91713001907, 28392.12772754635, 28702.871354620875, 28647.06607833984, 28149.97178477127, 28992.083359899065, 29573.269599593747, 29030.51024877554, 28973.789284765462, 29446.69708310543, 28961.330700689752, 28316.4078388026, 27615.37146983991, 27005.08473311784, 27092.510163035317, 26421.38693620068, 23721.70381626623, 25291.127353553515, 24733.457705426386, 26264.024620271208, 27040.66313020661, 27072.81844719763, 28836.112088683672, 28031.525652426866, 28434.04260068075, 29135.364092723757, 29196.75568294012, 29185.791236075638, 30475.72290132059, 30954.66919154845, 30950.800835717502, 31096.31916656738, 31433.374880937732, 30657.892423909772, 31323.366805007954, 31827.960237274758, 31918.093045005193, 31759.45241664031, 32023.855429007453, 32692.810505907037, 33318.6718054857, 33368.417767575986, 34125.82576006544, 33146.236408990044, 34000.640015947974, 34684.606567570314, 35075.80618620323, 34261.24434062084, 34206.01169119855, 33349.118606012686, 34865.778320791534, 35333.890743284275, 35082.373802817994, 35221.72766581085, 35778.16541741132, 35623.43613866041, 36537.54721618528, 36632.13747729196, 36688.97142877745, 36693.75684952994, 36527.89385503672, 36921.53932773338], "Sector & Thematic - Thematic": [9957.071892676895, 9741.225551678215, 9775.16909074143, 9671.109131135012, 9844.47138553494, 10027.31240988868, 10084.764349588018, 10143.723666106585, 10161.703257660945, 10273.830913281423, 10158.184983852283, 10030.374938838975, 9943.870863559874, 9803.381493391364, 10169.986517049558, 10105.037049033532, 10304.942118832885, 10384.488091255576, 10421.250527507173, 10446.61773210146, 10370.894826361002, 10486.224161136022, 10229.32606114822, 10293.26997506581, 10194.17009641796, 10116.14694720712, 10340.336406631208, 10453.639582891421, 10622.535821129768, 10562.138378728521, 10504.948108815306, 10345.900648351238, 10468.87798538097, 10487.658379602133, 10596.900378138651, 10746.101862701196, 10862.631285249241, 10925.836893363987, 10826.38615234181, 10885.001753442992, 10863.520957776618, 10904.515437722075, 10953.969591932948, 10949.3874271802, 11034.136339011471, 11011.389568561692, 11171.587741487763, 11085.50233256464, 10900.039201049121, 11133.009996899016, 11214.377028572093, 11148.089769061147, 10225.0514976813, 10116.701451846402, 9064.876901480238, 7884.647315537342, 8802.871551947574, 8527.151163839855, 9362.126430722505, 9317.371539600037, 9124.228331836928, 9256.31080512517, 9380.849254464942, 8962.124143367371, 9435.691035537518, 9852.201651471945, 10570.054456891003, 9928.259106126914, 9997.244238548175, 9667.548809704354, 9903.173498268065, 9718.36181630278, 10039.916801604986, 10055.047251371914, 9999.376465374406, 10462.104563373721, 10567.794856379367, 10526.633092795944, 10709.435026946876, 10533.152985889368, 10419.485764225587, 10670.356608318776, 10419.37148989064, 10652.021847390482, 11148.82894273617, 11186.505029759079, 11136.543733004191, 10459.704550347737, 11246.029463289498, 11750.494940978928, 11986.277743881205, 12339.716809967429, 12551.16478534641, 12583.353263951572, 12629.972144970136, 12744.957841584694, 12794.353538767964, 13300.855510028541, 13356.186619830904, 13601.685503720902, 12770.731135434828, 13539.628108616802, 13912.929379523257, 13843.919581965536, 13295.015824259399, 13164.16404213475, 13826.452291838903, 13696.885173873377, 13742.871977340405, 14010.435270999955, 14143.78885528364, 14308.230993768218, 14361.10185093546, 14299.27079333829, 14354.34560539571, 14039.552995949449, 13935.28491097227, 14188.762134651734, 14235.360525362566, 14295.528661768945, 13834.125577016475, 14346.471332190371, 14242.144446111542, 14177.961577086586, 13755.369780059938, 13964.319680755962, 14124.547079264688, 14101.70631608494, 14158.397625966189, 13829.356171476064, 14211.651562649888, 14290.466858843502, 14039.16528897114, 13937.164596268793, 13885.371685346954, 13707.064003064568, 13811.779601305032, 14017.613194296246, 14272.428920745706, 14204.26254988971, 14538.882532855041, 14462.360927764135, 14110.875323686489, 13614.27879124675, 13232.990161706859, 13611.484078138232, 13540.022031408123, 13765.049814981938, 13893.500600416399, 13509.43198549012, 13511.051232834006, 12813.388049881438, 12534.74966423135, 12777.184271639553, 12942.516730273699, 12746.657200509633, 13055.781305686269, 13186.315735768268, 12762.158197728704, 13498.870664671831, 13624.514341968046, 13764.096688288128, 13398.463362215474, 13445.570918167987, 12893.83593192011, 12326.180408324017, 12066.970354228339, 11738.126100151445, 11577.22874494016, 12200.014035670487, 12168.022492513903, 11661.366674847523, 10944.917538751362, 11631.077785424313, 11536.184772619465, 11758.40712296114, 11577.982807740706, 12041.303626937684, 12577.006846526638, 12679.605445802117, 13064.206719148955, 12710.56963358531, 12480.981986970064, 12001.164118053062, 12573.809056604554, 11862.909477227982, 11209.854109373418, 11065.99372803521, 11387.553714191763, 11099.50272946745, 11698.991405612709, 12301.283141268268, 12169.143433501653, 12739.593567618356, 12662.632197746707, 12808.599265335522, 13203.160036763778, 12913.273615414904, 12633.964112441694, 12539.906402042348, 12518.330542762202, 12766.994315178224, 13154.933235496814, 12927.008739779123, 13285.14429709661, 13487.119247845649, 13189.528045218525, 13385.264950509989, 13028.404299324922, 13508.340345900971, 12607.55956281957, 12441.106534806464, 12661.375733920317, 13007.334450231305, 12728.493552156022, 12922.473601216458, 13030.22734307489, 12890.624271019895, 12891.128123516306, 12707.755123721978, 12810.654400686117, 12605.259525068, 12995.903212402018, 13171.948842878392, 13418.706838090638, 13176.95392280111, 13671.115111077712, 13414.427567222014, 13853.482849548001, 13801.695298561624, 13941.687630267741, 13711.840387754033, 13532.711154140407, 12977.680209323376, 12993.518376068947, 13399.876099648667, 12838.122197958117, 12660.4880815659, 12215.65893475443, 12281.53514001411, 12114.209506770978, 12127.5761530966, 11772.320466097912, 11502.937571888095, 12226.633730202708, 12043.217289347727, 12538.76987194493, 12727.28911595252, 12976.09414911485, 12968.189072498504, 13603.426936524738, 13864.95213677537, 13939.74300664715, 13461.469967441175, 13529.268369463605, 13453.986091781211, 13597.352894603067, 13787.198824365658, 14013.72719705311, 14143.474778298862, 14072.599811425767, 14433.867968654664, 14563.322823624225, 14312.953435625624, 14602.871852446802, 14819.054676315267, 14574.479907500228, 14224.07791279125, 13816.317877044055, 14193.747085731782, 14548.379451073331, 14696.260538086744, 14881.536696649, 14773.800749968284, 14624.214753079968, 14530.91458821911, 14344.746165172792, 14407.356575933552, 14162.267575913987, 14053.958794482323, 14498.305574083104, 14549.860842067948, 14845.752762395865, 14442.406086600291, 14600.112993651313, 14909.026491186725, 15200.158724781004, 15302.103653982767, 14580.789041084627, 15208.364100748197, 15611.149352486, 15807.749129163176, 15908.626745300871, 15972.341421185612, 16143.6795134605, 15706.534098537555, 15719.620759764828, 16795.221137256405, 16112.342025864291, 16663.01419213631, 17095.21851263436, 16851.4703874318, 16471.525219899675, 16088.172994869345, 16042.168993738049, 16061.893388531947, 15888.06891632239, 16576.80374424815, 17100.62285575778, 16905.62263225809, 16890.223678668815, 17007.697544747007, 16472.838884319375, 16232.081428722724, 15844.7217485373, 15568.926021714571, 15640.184665870425, 15300.402243703054, 13905.796153791964, 14939.597699694461, 14860.050066581374, 15544.238026982835, 16328.492402832955, 16704.59063536224, 17335.621266734637, 16811.07593794924, 17156.052615669887, 17636.663229375605, 17423.59627607836, 17437.345145005947, 17937.832478057095, 18086.468799841987, 17982.085081934216, 18188.96528571841, 18600.016783975207, 18082.33407123026, 18145.269027272443, 18355.761217861465, 18606.228830790347, 18518.395455415764, 18606.16619971765, 18730.360235534274, 18864.217576368657, 18839.746686181705, 19341.59005564359, 18759.64014714724, 18905.191712502336, 19545.472003419476, 19226.677791234575, 18684.606042161297, 18397.53446958779, 18176.37263754089, 19000.084072864676, 18860.69339369568, 18913.446745635098, 18805.633488329127, 19001.585154063567, 18997.203613081023, 19957.676528694163, 20400.372400073604, 20047.254003884133, 19582.925734802917, 19681.312267743466, 19628.357398846016], "Secular Growth": [10119.100162307319, 9902.348157290979, 10185.43241502847, 10180.816269733945, 10280.575496939728, 10513.924450998053, 10563.359483026734, 10565.68350765277, 10664.411348777949, 10811.626015477223, 10509.362093947691, 10362.878985552657, 10152.31648900113, 10056.399235262077, 10341.654482289308, 10334.817108110432, 10567.569182025742, 10595.86109297103, 10708.438306024747, 10789.687700937227, 10731.918403329604, 10943.516423515955, 10544.913208287475, 10481.81171556446, 10388.17879502075, 10311.221966705492, 10503.686511396207, 10704.567534155356, 10790.34635565793, 10712.333407759534, 10474.996474919379, 10518.722465054228, 10563.841902597076, 10612.46833100723, 10767.522358355587, 10866.62019780616, 10922.93849957639, 11000.131526956166, 10990.978131626363, 11142.702686368717, 11142.75797608938, 11250.890906172435, 11440.844161872132, 11524.444356791504, 11598.442729216105, 11801.589148803392, 11991.909027836004, 11913.0741465104, 11629.366273072099, 11920.23651120361, 12238.166436434041, 12084.002561008314, 11181.573805240634, 11178.808591585755, 10258.024388848811, 9325.814353918342, 10206.097749634153, 9893.861152977961, 10767.80238199585, 11273.230220256866, 11305.898091470097, 11244.933386495146, 12013.4702271871, 11937.801724893172, 12312.420928811393, 12550.884698555878, 12992.97894978376, 12771.747189753542, 13236.85702349285, 13200.959273144097, 13601.802905275157, 14062.723558352769, 13818.845516316731, 13838.944963551696, 14322.026065404876, 14730.941234468934, 14632.858841594765, 14862.599441772356, 15194.539852551, 14767.196607153744, 14480.070433374303, 14629.639419875577, 14668.363400101929, 14940.279696395492, 15499.018374540374, 15475.296861384473, 15459.889159457656, 14842.795693322585, 15990.304529260304, 15793.48117865134, 16100.091475260651, 16527.022788710874, 16763.236376938647, 16729.34002990273, 17152.57846739252, 17091.116008466783, 17180.837999657193, 17743.74628288401, 17776.776987265526, 18381.513728624017, 17793.13564232101, 18823.539349736875, 19565.847946699967, 19477.204704716976, 18364.166484058387, 17760.540783387296, 18297.401215697897, 18263.007149344034, 17903.743104824272, 18392.40858558688, 18639.847788339364, 18623.39424144596, 18531.766820398185, 18323.91007462714, 17956.646066574445, 17319.79859226186, 17575.81991322742, 18062.608317100086, 18192.43275021745, 18331.905689213065, 18243.302876780283, 18661.067683710426, 18676.934684612195, 18567.900162903534, 18030.599762117505, 18573.729285331356, 18491.06232525627, 19058.539734763774, 19005.49351415105, 18492.565408962466, 19463.825471768418, 20032.39715429826, 19341.282834312937, 19200.297224988077, 18998.00114770306, 18247.425657521693, 18511.75218965465, 19216.87212669393, 19484.57894022927, 19768.08324668073, 20644.55123283996, 21196.14638157996, 20584.1049695543, 19480.74204655695, 18163.9099726532, 18367.06505604357, 17506.319200554673, 18299.892799063113, 17933.150160094607, 16788.550746861536, 16717.30868502953, 15231.136996098337, 14731.380069311957, 15414.257964806426, 15490.103331307135, 14912.643719728912, 14957.568233427492, 13995.844012089547, 13300.141567870782, 15108.099515565651, 15175.173356124888, 15159.948713723674, 14092.136288394266, 13673.162195292534, 12735.611379380287, 12284.825732877489, 11801.11092497145, 11172.433979696189, 10897.864198244566, 11531.132637983965, 11377.762144211043, 10718.982806097318, 9823.007746717984, 10649.538264419258, 9779.778123014103, 10386.531798654685, 9992.578649873245, 10806.763219292689, 11004.717234402115, 11671.283949573019, 12258.606127716255, 11239.957236279879, 10804.25397134526, 10319.792295682033, 10942.235876299985, 10170.832679886264, 9379.500496043727, 9296.340807769435, 9454.893630462218, 8799.750608505996, 9287.612326824408, 9685.952195730952, 9231.017221555836, 9917.761362919848, 9496.712182477098, 9452.883321461586, 9894.16169906262, 9392.996564416237, 9074.184663359214, 8776.09459399134, 8810.319284651929, 9226.43738598859, 10296.027070791704, 10457.437122866522, 11112.242102698194, 11427.87067583556, 10734.54952392311, 11014.260677741026, 10453.958246445565, 10817.732839232172, 10014.696113080096, 10716.772177533416, 10732.809780355752, 11318.643364673915, 10981.488050277741, 11397.85705290819, 11060.602021939361, 10998.466474287507, 11134.87112573768, 10952.13003639271, 11444.482728225645, 11565.390182730942, 11992.558705010519, 11970.723954787829, 12431.064030153348, 12350.882601077645, 12883.74767404008, 13012.150455890687, 13987.756720789706, 13721.932392370036, 14049.537600109052, 13396.238782015169, 12951.197328426713, 12118.055886400298, 12185.08135905351, 12812.524187610563, 12518.35379538083, 12340.110897780347, 11666.534361551572, 11836.521954720047, 11853.874915078459, 11587.045145977085, 11305.565810873513, 11135.338053141244, 12179.716968846325, 12212.136301296181, 12701.029269396522, 13106.750932382938, 13862.159253312824, 14231.662314004367, 14714.483315378577, 15419.843560185162, 15351.279115644309, 14601.111881266144, 14494.67337709203, 14253.501833951357, 14598.181030518586, 14662.957984631676, 15639.16344158989, 16171.216519380685, 15914.839263174794, 16589.305831628524, 16788.40461607913, 16350.760932821753, 16760.15385581177, 16985.327089682953, 16358.424898049509, 15882.242992012592, 15202.249746142175, 16121.182277614822, 16203.789649137798, 16066.964494451468, 16725.349991981715, 16827.59404288614, 16438.935704984717, 16868.11851015132, 17101.455343190653, 17104.860070120474, 17173.496118524083, 17616.847016722957, 17930.72580004976, 17698.184096631565, 17225.984469265753, 15881.00090043167, 16043.029285284927, 16898.904126434507, 17435.918908254003, 17059.961127036, 15880.483352117328, 16985.600058022552, 17371.659962019647, 18302.102678442312, 18258.073213865748, 18321.071086335898, 18758.88168795766, 18497.32230621426, 18285.138553606914, 20058.76128394023, 20051.942030765214, 21115.97674053261, 21665.022786870093, 22622.99031509843, 22166.610292743375, 21655.90872264225, 21662.63434745746, 21974.355999475232, 21055.8294515826, 22133.830253246422, 22841.775172454523, 22420.06775103866, 22612.121809688615, 23393.000917629295, 22237.553506632343, 20944.770176027305, 20443.735218229718, 19877.72628271368, 19980.508536853795, 19198.373714072757, 17094.451214782697, 18308.090676381427, 18193.273459013773, 19871.66371163479, 20558.657985836053, 20802.509542510124, 22432.343148974975, 22101.8721175853, 21974.760786631192, 23417.62910970506, 23001.788147830826, 23323.83712779522, 24511.902335381958, 25359.156106337563, 25331.465383368723, 26656.327768760973, 26427.447584356592, 25158.25639374092, 26174.696240544392, 26687.27879985879, 26904.32367609934, 26940.155294471166, 26796.221450177673, 28477.58165434762, 29919.583879913647, 29452.513259188203, 31262.325614930225, 30745.040378858084, 31160.817923067032, 31947.819242812377, 31942.258149545785, 30271.681743972567, 28564.676723157314, 26828.656690199747, 29077.079354260597, 29403.301701686407, 29006.211855928603, 28789.374486135614, 28748.683993000446, 28984.26625286052, 30146.960057079483, 30647.467594616064, 30145.958764513078, 28814.47099065795, 27345.62619347432, 27550.560402659325], "Alternative Investments": [9919.257278905163, 9929.637305294202, 9971.578438742039, 9980.265115532786, 9973.553154116458, 10021.40121428861, 10028.996652374346, 9991.06155304176, 10039.50601910823, 10043.088028923792, 10039.595657257367, 9996.376134683978, 9936.580438325014, 9884.65670696991, 10038.088296231137, 10053.491614605458, 10206.524393743963, 10228.890181916064, 10252.329185449758, 10304.62577728106, 10285.12141488815, 10302.412656605187, 10318.746178667492, 10425.833587972429, 10457.294465158551, 10477.457586112143, 10525.500376220107, 10526.939611207168, 10445.126883254878, 10547.560577340953, 10457.986940409499, 10477.928471751738, 10420.462332235526, 10437.966653326948, 10493.709212895974, 10546.544687410922, 10416.554746030257, 10446.309599543769, 10435.359560341603, 10459.703641617947, 10480.109285005388, 10555.589696914629, 10586.202937318718, 10679.357038175527, 10737.993894358877, 10768.405632028647, 10789.376518687299, 10755.942220032095, 10678.496407488783, 10712.63116582458, 10766.913242826004, 10878.901873998087, 10451.232423146223, 10657.989771962868, 10100.973348279582, 9777.37549676216, 10228.502118909864, 10193.023199308236, 10483.777368226141, 10522.975893965076, 10617.984923463466, 10573.95764740801, 10613.487372209944, 10657.47052062577, 10707.869302723604, 10723.949086786559, 10679.160770983162, 10655.757628514122, 10776.364764026139, 10767.008420349686, 10813.556152060899, 10910.268785362703, 10977.712919435073, 11178.09483814599, 11334.08310931772, 11455.922190076548, 11305.824128305028, 11334.532055255806, 11415.837788959274, 11269.732800644098, 11196.612190232523, 11240.55818842731, 11066.116932444822, 11152.732486062752, 11343.008370877596, 11307.176484806827, 11301.47807609102, 11062.121161456247, 11435.280129136076, 11287.392097558806, 11286.855309131062, 11211.792569855936, 11297.589757991243, 11329.376702782896, 11508.494641990963, 11519.4484638928, 11580.313984600456, 11652.573488789087, 11637.861596442199, 11716.10659002069, 11629.323442633764, 11739.710656578905, 11849.96234139709, 11816.797257664537, 11614.427636419729, 11597.670537952827, 11679.662480752464, 11606.852167181227, 11583.09205806084, 11612.152342577028, 11673.479120422147, 11813.076446363404, 11864.42278293112, 11861.07104107135, 12106.024893027788, 12022.017449922592, 12079.735611870105, 12180.231225892156, 12223.405592343344, 12211.724962539074, 11910.974483778584, 12037.917712201077, 12106.726135696847, 12130.915376047249, 12043.90698135178, 12118.381765362425, 12134.81039147906, 12039.865854597885, 12096.560810612702, 12014.005550058617, 12196.337589692339, 12275.782312010677, 12112.086872681886, 12019.440955913766, 12030.603253189578, 12017.403937602567, 11996.596829155898, 12129.746257169727, 12200.351976806227, 12183.091773318538, 12324.975992682497, 12466.917346627539, 12350.03517794874, 12083.571255257484, 11983.481418499394, 12121.43049777144, 12072.606946152926, 12195.29928530117, 12277.579689035667, 12076.463661691976, 12130.636904352667, 11933.433967001047, 11847.093406878605, 11986.894648874577, 12070.708061441526, 12107.187346462555, 12141.354282331307, 12390.333152868323, 12307.78836103998, 12293.519145526834, 12416.180053635251, 12308.511737526269, 12348.930128400241, 12401.248679023622, 12172.439644727237, 12073.990426972754, 12059.887572286956, 11914.146806911998, 11926.69261053177, 12089.231707666288, 12083.741383139206, 11987.207170319227, 11693.296625392844, 11774.007463368776, 11702.757196943121, 11632.878332727661, 11505.577034704656, 11581.366302083627, 11731.98297738227, 11784.346833049061, 11956.442533889702, 11793.808398981408, 11677.838166583437, 11542.665106518292, 11669.250018347338, 11453.061710403928, 11245.80523168463, 11214.87469526033, 11356.891717197324, 11221.441439878803, 11358.768940951706, 11410.708234717864, 11413.47810467572, 11659.48073546853, 11610.94636765631, 11664.831622814156, 11778.194250528333, 11681.710354573333, 11595.791480489903, 11658.041613041953, 11648.39602572791, 11794.54746460594, 11965.636701274065, 11961.099726358301, 12068.827397762452, 11985.83279017606, 11953.541481849932, 11943.882042758185, 11772.925249418622, 11941.974301096845, 11812.370262031392, 12051.2936298624, 12131.066690122176, 12273.764056164302, 12345.123840242188, 12373.599413170425, 12338.104482707125, 12398.09807561838, 12477.497249487978, 12446.416151487725, 12433.70122453362, 12381.20233651992, 12464.985751107863, 12491.106554338885, 12506.03115339467, 12380.383561067338, 12517.19953464733, 12459.304893027724, 12601.576251930861, 12701.140665088235, 12749.006068987279, 12656.505002169886, 12588.803540956224, 12472.504448628075, 12523.487477138133, 12676.16078287725, 12650.786772070242, 12661.809640682512, 12589.611453647642, 12473.244094363607, 12413.3482489861, 12587.567381839594, 12587.76512336482, 12588.864648628258, 12774.267860528667, 12748.922792753725, 12882.09432556808, 12964.778894101522, 13114.937355833856, 13071.24021581965, 13171.3674881229, 13308.66905118359, 13316.412236577351, 13257.592102539522, 13367.794884607833, 13325.822012003173, 13338.517171797175, 13417.612293800097, 13538.912576419269, 13538.470964638516, 13662.024479151314, 13818.661465227375, 13982.512775858426, 13944.330147773493, 14036.869881512148, 14217.628016355378, 14339.097263949896, 14284.51324923451, 14204.166797838214, 14246.2614483978, 14140.193212785014, 14298.993339298795, 14460.345290999177, 14313.78274536605, 14314.980302800788, 14230.83073627938, 14292.833633030537, 14328.773208034163, 14355.21056858175, 14548.99012252798, 14593.663156257806, 14474.367749093106, 14444.936231787413, 14367.375739404666, 14330.363313657735, 14631.03399140393, 14717.135940547148, 14706.751211882434, 14475.659823768623, 14751.694108883963, 14843.376543540156, 14940.27336151826, 14913.238339772211, 15004.401569180367, 15200.141397818536, 15106.864875833558, 15067.769390978458, 15209.984247859591, 14996.060268724434, 15327.55675127237, 15339.66063497577, 15393.328539206437, 15363.97953263157, 15183.361325790354, 15197.078717613822, 15287.645324760213, 15259.977827567183, 15458.77673779077, 15612.805783487405, 15610.779432203739, 15645.653338145537, 15735.834244838536, 15665.208646987912, 15523.78864530221, 15426.184233414522, 15456.87852586815, 15536.177276359089, 15564.13693362553, 15114.704480344853, 15450.61485647008, 15604.194750644758, 15762.226833608842, 15859.699769704428, 15933.758125499355, 15951.463510028916, 16114.875645247621, 16092.422486049207, 16198.364393693551, 16264.223737958973, 16162.589462277167, 16233.85868802923, 16357.429199984892, 16400.01601665828, 16434.061436357013, 16492.594538515525, 16411.18489132418, 16598.188985094217, 16599.847197574098, 16728.45932779723, 16798.710353179376, 17030.803447299535, 17230.066643501475, 17398.871957432555, 17491.772275455336, 17755.413784473705, 17678.13554984085, 18125.462822918344, 18110.78844649593, 18031.48663842474, 17963.332721564602, 18047.700369803737, 17926.622387714844, 18343.240567120127, 18315.74273989373, 18409.5250607606, 18503.783975620274, 18810.858846595787, 18531.343580061835, 18882.945069513386, 19011.06737096255, 19417.457029810423, 19143.33627245217, 19361.601366317376, 19568.164353184926]};
+        const assetClassAlloc = {"Cash": 0.03, "Fixed Income": 0.3, "Core Equity": 0.3500000000000001, "Sector & Thematic - Sectoral": 0.08399999999999999, "Sector & Thematic - Thematic": 0.036000000000000004, "Secular Growth": 0.08000000000000002, "Alternative Investments": 0.12};
+        const assetClassColors = {"Cash": "#95a5a6", "Fixed Income": "#3498db", "Core Equity": "#e74c3c", "Sector & Thematic - Sectoral": "#f39c12", "Sector & Thematic - Thematic": "#e67e22", "Secular Growth": "#9b59b6", "Alternative Investments": "#27ae60"};
+        
+        const defaultStartDate = '2019-03-01';
+        const defaultEndDate = '2026-02-13';
+        
+        let pieChart, navChart;
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+        });
+        
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            if (tabName === 'statistics') {
+                document.getElementById('statisticsTab').classList.add('active');
+                document.querySelectorAll('.tab')[0].classList.add('active');
+            } else if (tabName === 'description') {
+                document.getElementById('descriptionTab').classList.add('active');
+                document.querySelectorAll('.tab')[1].classList.add('active');
+            }
+        }
+        
+        function resetDates() {
+            document.getElementById('startDate').value = defaultStartDate;
+            document.getElementById('endDate').value = defaultEndDate;
+            updateDashboard();
+        }
+        
+        function updateDashboard() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            // Filter data by date range
+            const filtered = filterDataByDateRange(startDate, endDate);
+            
+            if (filtered.returns.length === 0) {
+                alert('No data available for the selected date range');
+                return;
+            }
+            
+            // Calculate statistics
+            const stats = calculateStatistics(filtered.returns, filtered.dates);
+            
+            // Update display
+            updateStatistics(stats, filtered.dates);
+            updateCharts(filtered, stats);
+        }
+        
+        function filterDataByDateRange(startDate, endDate) {
+            const startIdx = allDates.findIndex(d => d >= startDate);
+            const endIdx = allDates.findIndex(d => d > endDate);
+            
+            const actualEndIdx = endIdx === -1 ? allDates.length : endIdx;
+            const actualStartIdx = startIdx === -1 ? 0 : startIdx;
+            
+            // Re-base NAV to 10,000 at start date
+            const navSlice = allNav.slice(actualStartIdx, actualEndIdx);
+            const navBase = navSlice[0];
+            const rebasedNav = navSlice.map(v => (v / navBase) * 10000);
+            
+            return {
+                dates: allDates.slice(actualStartIdx, actualEndIdx),
+                returns: allReturns.slice(actualStartIdx, actualEndIdx),
+                nav: rebasedNav,
+                startIdx: actualStartIdx,
+                endIdx: actualEndIdx
+            };
+        }
+        
+        function calculatePeriodLabel(weeks) {
+            const years = Math.floor(weeks / 52);
+            const remainingWeeks = weeks % 52;
+            const months = Math.floor(remainingWeeks / 4.33);
+            
+            if (years === 0 && months === 0) {
+                return `${weeks}w`;
+            } else if (years === 0) {
+                return `${months}m`;
+            } else if (months === 0) {
+                return `${years}y`;
+            } else {
+                return `${years}y ${months}m`;
+            }
+        }
+        
+        function calculateStatistics(returns, dates) {
+            const weeksInYear = 52;
+            const totalWeeks = returns.length;
+            
+            // Annualized return function
+            function annualizedReturn(rets, weeks) {
+                if (rets.length < weeks) return null;
+                const recent = rets.slice(-weeks);
+                const totalReturn = recent.reduce((acc, r) => acc * (1 + r), 1) - 1;
+                const years = weeks / weeksInYear;
+                return Math.pow(1 + totalReturn, 1/years) - 1;
+            }
+            
+            // Returns for different periods
+            const return1y = annualizedReturn(returns, weeksInYear);
+            const return3y = annualizedReturn(returns, 3 * weeksInYear);
+            const return5y = annualizedReturn(returns, 5 * weeksInYear);
+            const returnMax = annualizedReturn(returns, Math.min(totalWeeks, returns.length));
+            
+            // Period labels
+            const period1yLabel = totalWeeks >= weeksInYear ? '1 Year' : calculatePeriodLabel(totalWeeks);
+            const period3yLabel = totalWeeks >= 3 * weeksInYear ? '3 Year' : calculatePeriodLabel(Math.min(totalWeeks, 3 * weeksInYear));
+            const period5yLabel = totalWeeks >= 5 * weeksInYear ? '5 Year' : calculatePeriodLabel(Math.min(totalWeeks, 5 * weeksInYear));
+            const periodMaxLabel = calculatePeriodLabel(totalWeeks);
+            
+            // Volatility
+            const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
+            const variance = returns.reduce((acc, r) => acc + Math.pow(r - mean, 2), 0) / returns.length;
+            const volatility = Math.sqrt(variance) * Math.sqrt(weeksInYear);
+            
+            // Maximum drawdown
+            const cumulative = [];
+            let cum = 1;
+            for (const r of returns) {
+                cum *= (1 + r);
+                cumulative.push(cum);
+            }
+            
+            let maxDD = 0;
+            let maxDDDate = null;
+            let runningMax = cumulative[0];
+            let maxDDEndIdx = -1;
+            
+            for (let i = 0; i < cumulative.length; i++) {
+                if (cumulative[i] > runningMax) {
+                    runningMax = cumulative[i];
+                }
+                const dd = (cumulative[i] - runningMax) / runningMax;
+                if (dd < maxDD) {
+                    maxDD = dd;
+                    maxDDDate = dates[i];
+                    maxDDEndIdx = i;
+                }
+            }
+            
+            // Time to recovery
+            let timeToRecovery = 'N/A';
+            if (maxDDEndIdx >= 0) {
+                const peakValue = runningMax;
+                for (let i = maxDDEndIdx + 1; i < cumulative.length; i++) {
+                    if (cumulative[i] >= peakValue) {
+                        timeToRecovery = (i - maxDDEndIdx) + ' weeks';
+                        break;
+                    }
+                }
+            }
+            
+            // Rolling 1-year returns
+            let maxRolling1y = -Infinity;
+            let maxRolling1yDate = null;
+            let minRolling1y = Infinity;
+            let minRolling1yDate = null;
+            
+            if (returns.length >= weeksInYear) {
+                for (let i = weeksInYear; i < returns.length; i++) {
+                    const yearReturns = returns.slice(i - weeksInYear, i);
+                    const yearReturn = yearReturns.reduce((acc, r) => acc * (1 + r), 1) - 1;
+                    
+                    if (yearReturn > maxRolling1y) {
+                        maxRolling1y = yearReturn;
+                        maxRolling1yDate = dates[i];
+                    }
+                    if (yearReturn < minRolling1y) {
+                        minRolling1y = yearReturn;
+                        minRolling1yDate = dates[i];
+                    }
+                }
+            }
+            
+            return {
+                return1y,
+                return3y,
+                return5y,
+                returnMax,
+                period1yLabel,
+                period3yLabel,
+                period5yLabel,
+                periodMaxLabel,
+                volatility,
+                maxDrawdown: maxDD,
+                maxDrawdownDate: maxDDDate,
+                timeToRecovery,
+                maxRolling1y: maxRolling1y !== -Infinity ? maxRolling1y : null,
+                maxRolling1yDate,
+                minRolling1y: minRolling1y !== Infinity ? minRolling1y : null,
+                minRolling1yDate
+            };
+        }
+        
+        function updateStatistics(stats, dates) {
+            // Update period labels
+            document.getElementById('period1yLabel').textContent = stats.period1yLabel;
+            document.getElementById('period3yLabel').textContent = stats.period3yLabel;
+            document.getElementById('period5yLabel').textContent = stats.period5yLabel;
+            document.getElementById('periodMaxLabel').textContent = stats.periodMaxLabel;
+            
+            // Returns
+            document.getElementById('return1y').innerHTML = formatReturn(stats.return1y);
+            document.getElementById('return3y').innerHTML = formatReturn(stats.return3y);
+            document.getElementById('return5y').innerHTML = formatReturn(stats.return5y);
+            document.getElementById('returnMax').innerHTML = formatReturn(stats.returnMax);
+            
+            // Volatility
+            document.getElementById('volatility').textContent = stats.volatility ? (stats.volatility * 100).toFixed(1) + '%' : 'N/A';
+            
+            // Max Drawdown
+            document.getElementById('maxDrawdown').innerHTML = `<span class="negative">${(stats.maxDrawdown * 100).toFixed(1)}%</span>`;
+            document.getElementById('drawdownDate').textContent = stats.maxDrawdownDate ? formatDate(stats.maxDrawdownDate) : 'N/A';
+            document.getElementById('timeToRecovery').textContent = stats.timeToRecovery;
+            
+            // Max/Min Returns
+            document.getElementById('maxReturn').innerHTML = formatReturn(stats.maxRolling1y);
+            document.getElementById('maxReturnDate').textContent = stats.maxRolling1yDate ? formatDate(stats.maxRolling1yDate) : 'N/A';
+            document.getElementById('minReturn').innerHTML = formatReturn(stats.minRolling1y);
+            document.getElementById('minReturnDate').textContent = stats.minRolling1yDate ? formatDate(stats.minRolling1yDate) : 'N/A';
+        }
+        
+        function formatReturn(value) {
+            if (value === null || value === undefined) return 'N/A';
+            const pct = (value * 100).toFixed(1) + '%';
+            const className = value >= 0 ? 'positive' : 'negative';
+            return `<span class="${className}">${pct}</span>`;
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+        }
+        
+        function updateCharts(filtered, stats) {
+            // Destroy existing charts
+            if (pieChart) pieChart.destroy();
+            if (navChart) navChart.destroy();
+            
+            // Sort asset classes by allocation
+            const sortedClasses = Object.entries(assetClassAlloc)
+                .sort((a, b) => b[1] - a[1])
+                .map(entry => entry[0]);
+            
+            const pieLabels = sortedClasses;
+            const pieData = sortedClasses.map(ac => assetClassAlloc[ac] * 100);
+            const pieColors = sortedClasses.map(ac => assetClassColors[ac] || '#999999');
+            
+            // Pie Chart
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: pieLabels,
+                    datasets: [{
+                        data: pieData,
+                        backgroundColor: pieColors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    return label + ': ' + value.toFixed(1) + '%';
+                                }
+                            }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            },
+                            formatter: (value, ctx) => {
+                                return value.toFixed(1) + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+            
+            // NAV Chart with rebased data
+            const navDatasets = [];
+            
+            // Define standard asset class order
+            const assetClassOrder = [
+                'Cash',
+                'Fixed Income',
+                'Core Equity',
+                'Sector & Thematic - Sectoral',
+                'Sector & Thematic - Thematic',
+                'Secular Growth',
+                'Alternative Investments'
+            ];
+            
+            // Add asset class datasets (rebased)
+            assetClassOrder.forEach(className => {
+                if (assetClassNavs[className]) {
+                    const classNav = assetClassNavs[className].slice(filtered.startIdx, filtered.endIdx);
+                    const classNavBase = classNav[0];
+                    const rebasedClassNav = classNav.map(v => (v / classNavBase) * 10000);
+                    const finalValue = rebasedClassNav[rebasedClassNav.length - 1];
+                    navDatasets.push({
+                        label: className + ' ($' + finalValue.toFixed(0) + ')',
+                        data: rebasedClassNav,
+                        borderColor: assetClassColors[className] || '#999999',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        pointRadius: 0
+                    });
+                }
+            });
+            
+            // Add portfolio line last
+            const portfolioFinalValue = filtered.nav[filtered.nav.length - 1];
+            navDatasets.push({
+                label: 'Portfolio ($' + portfolioFinalValue.toFixed(0) + ')',
+                data: filtered.nav,
+                borderColor: '#2a5298',
+                backgroundColor: 'transparent',
+                borderWidth: 3,
+                tension: 0.1,
+                pointRadius: 0
+            });
+            
+            const navCtx = document.getElementById('navChart').getContext('2d');
+            navChart = new Chart(navCtx, {
+                type: 'line',
+                data: {
+                    labels: filtered.dates,
+                    datasets: navDatasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 12,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label.split(' ($')[0] + ': $' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            ticks: {
+                                maxTicksLimit: 12,
+                                autoSkip: true
+                            },
+                            grid: { display: false }
+                        },
+                        y: {
+                            display: true,
+                            title: { display: true, text: 'Value ($)' },
+                            grid: { color: '#e9ecef' }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
